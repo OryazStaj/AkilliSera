@@ -1,0 +1,11 @@
+# Python .gitignore Kuralları
+__pycache__/
+*.py[cod]
+.venv/
+env/
+
+# DİKKAT: Yapay Zeka ağırlık dosyaları (modeller) çok büyüktür. 
+# GitHub'a gönderilmesi yasaktır! Bu yüzden aşağıdaki uzantılar engellendi:
+*.pt
+*.onnx
+*.weights

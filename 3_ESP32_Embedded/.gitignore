@@ -1,0 +1,5 @@
+# ESP32 .gitignore Kuralları
+# PlatformIO ve derlenmiş makine kodları engellendi:
+.pio/
+*.bin
+*.elf

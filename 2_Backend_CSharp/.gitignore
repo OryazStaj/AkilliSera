@@ -1,0 +1,6 @@
+# C# .gitignore Kuralları
+# Derleme sırasında oluşan geçici klasörler engellendi:
+[Bb]in/
+[Oo]bj/
+*.user
+appsettings.Development.json
