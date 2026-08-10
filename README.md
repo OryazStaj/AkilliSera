@@ -10,7 +10,7 @@ Kodlarımızın birbirine girmemesi için projemiz "odalar" şeklinde bölünmü
 
 *   🤖 **`1_AI_Python/`** 👉 Furkan & Hülya (YOLO Modelleri, Bulanık Mantık)
 *   ⚙️ **`2_Backend_CSharp/`** 👉 Umut, Sudenaz, Yusuf (API, DTO, Servisler)
-*   🔌 **`3_ESP32_Embedded/`** 👉 Burak, Yusuf (C++ Kodları, Wi-Fi, Sensörler)
+*   🔌 **`3_ESP32_Embedded/`** 👉 Burak, Yusuf (C# Kodları, Wi-Fi, Sensörler)
 *   💻 **`4_Frontend_Web/`** 👉 Umut, Zülal (Kullanıcı Arayüzü)
 *   🗄️ **`5_Database_SQL/`** 👉 Hasan, Kaan (SQL Tabloları, Şemalar)
 *   📜 **`Docs_Donanim/`** 👉 Kaan, Burak (Proteus çizimleri, Pin haritaları - *Buraya kod atılmaz*)
