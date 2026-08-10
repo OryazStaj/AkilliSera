@@ -9,3 +9,6 @@ env/
 *.pt
 *.onnx
 *.weights
+
+#fotoğraf dosyalarını engelledim
+*.jpg
