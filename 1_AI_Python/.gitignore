@@ -6,8 +6,7 @@ env/
 
 # DİKKAT: Yapay Zeka ağırlık dosyaları (modeller) çok büyüktür. 
 # GitHub'a gönderilmesi yasaktır! Bu yüzden aşağıdaki uzantılar engellendi:
-*.pt
-*.onnx
+
 *.weights
 
 #fotoğraf dosyalarını engelledim
