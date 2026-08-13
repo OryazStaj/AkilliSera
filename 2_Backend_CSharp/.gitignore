@@ -1,2 +1,59 @@
+# C# .gitignore Kuralları
+
+# Derlenmiş dosyalar ve build çıktıları
 bin/
 obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.userprefs
+*.sln.iml
+.idea/
+
+# ReSharper
+.resharper
+.resharper.user
+*.resharper.user
+
+# NuGet
+.nuget/
+packages/
+*.nupkg
+*.nuspec
+
+# Log dosyaları
+logs/
+*.log
+
+# Veritabanı dosyaları
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+# Environment ve konfigürasyon dosyaları (lokal ortama özel)
+appsettings.Local.json
+*.local.json
+
+# Geçici dosyalar
+*.tmp
+*.temp
+*.cache
+~*
+
+# OS spesifik dosyalar
+.DS_Store
+Thumbs.db
+
+# Build outputs
+.build/
+publish/
+dist/
+
+# Visual Studio Code
+*.code-workspace
