@@ -3,3 +3,27 @@
 node_modules/
 dist/
 .env
+
+# Derleme çıktıları, framework önbellekleri ve günlükler
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.vite/
+.cache/
+coverage/
+.env.*
+!.env.example
+!.env.sample
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+*.tmp
+*.temp
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

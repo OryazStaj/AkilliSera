@@ -57,3 +57,20 @@ dist/
 
 # Visual Studio Code
 *.code-workspace
+
+# Ek .NET ve yerel geliştirme çıktıları
+artifacts/
+TestResults/
+*.snupkg
+*.sqlite3
+*.suo
+*.userosscache
+*.rsuser
+*.sln.docstates
+*.DotSettings.user
+_ReSharper*/
+appsettings.*.local.json
+secrets.json
+.env
+.env.*
+!.env.example
