@@ -34,3 +34,10 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Zorunlu frontend vendor dosyalari (yanlislikla ignore edilmesin)
+!wwwroot/dist/
+!wwwroot/dist/css/
+!wwwroot/dist/js/
+!wwwroot/dist/css/adminlte.css
+!wwwroot/dist/js/adminlte.js

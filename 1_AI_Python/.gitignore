@@ -36,3 +36,8 @@ htmlcov/
 *.jpeg
 .DS_Store
 Thumbs.db
+
+# Zorunlu model dosyalari (projede versiyonlanir)
+!Goruntu_Isleme/model.onnx
+!Goruntu_Isleme/model_domates.onnx
+!Goruntu_Isleme/yolov8n-seg.pt
