@@ -1,117 +1,162 @@
-import os
+"""Akıllı Sera görüntü analizi.
+
+Bu modül bir görüntü için backend tarafından tüketilebilecek JSON uyumlu sözlük
+üretir. Ağ isteği yapmaz; backend endpoint'i netleştiğinde çıktıyı HTTP istemcisi
+ile gönderecek katman ayrı eklenmelidir.
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
 import cv2
 from ultralytics import YOLO
-
-# ---------------- 1. MODELLERİ YÜKLE ----------------
-hastalik_model_yolu = "model.onnx"        
-domates_model_yolu = "model_domates.onnx"  
-
-print("Modeller yükleniyor...")
-hastalik_modeli = YOLO(hastalik_model_yolu, task='detect')
-domates_modeli = YOLO(domates_model_yolu, task='detect')
+from ultralytics.utils import LOGGER
 
 
-def akilli_sera_analiz_et(fotograf_yolu):
+BASE_DIR = Path(__file__).resolve().parent
+HASTALIK_MODEL_YOLU = BASE_DIR / "model.onnx"
+DOMATES_MODEL_YOLU = BASE_DIR / "model_domates.onnx"
+VARSAYILAN_GUVEN_ESIGI = 0.30
+
+# CLI çıktısı başka sistemler tarafından doğrudan JSON olarak okunabilsin.
+LOGGER.setLevel("ERROR")
+
+
+def model_yukle() -> tuple[YOLO, YOLO]:
+    """Model dosyalarının varlığını doğrular ve modelleri yükler."""
+    eksik_modeller = [
+        yol.name
+        for yol in (HASTALIK_MODEL_YOLU, DOMATES_MODEL_YOLU)
+        if not yol.is_file()
+    ]
+    if eksik_modeller:
+        raise FileNotFoundError("Model dosyası bulunamadı: " + ", ".join(eksik_modeller))
+
+    return (
+        YOLO(str(HASTALIK_MODEL_YOLU), task="detect"),
+        YOLO(str(DOMATES_MODEL_YOLU), task="detect"),
+    )
+
+
+def _tespitleri_oku(sonuclar: Any, model: YOLO, alan_adi: str) -> list[dict[str, Any]]:
+    """YOLO sonuçlarını JSON serileştirilebilir, kararlı bir listeye dönüştürür."""
+    tespitler: list[dict[str, Any]] = []
+    for sonuc in sonuclar:
+        if sonuc.boxes is None:
+            continue
+        for kutu in sonuc.boxes:
+            sinif_id = int(kutu.cls[0])
+            sinif_adi = model.names.get(sinif_id, f"Sinif_{sinif_id}")
+            tespitler.append(
+                {
+                    alan_adi: str(sinif_adi),
+                    # Backend için yüzde formatı kullanılır: 0-100.
+                    "guvenSkoru": round(float(kutu.conf[0]) * 100, 2),
+                }
+            )
+    return tespitler
+
+
+def akilli_sera_analiz_et(
+    fotograf_yolu: str | Path,
+    sera_id: int | None = None,
+    guven_esigi: float = VARSAYILAN_GUVEN_ESIGI,
+) -> dict[str, Any]:
+    """Görüntüyü analiz eder ve JSON'a çevrilebilir sonuç sözlüğü döndürür.
+
+    Evre kuralı: domates varsa ``Olgun``; domates yok ama hastalık/yaprak
+    tespiti varsa ``Filiz``; hiçbir tespit yoksa ``Tohum``.
     """
-    Görseli önce domates modeli, ardından hastalık modeli ile tarar:
-    1. Domates tespit edildiyse -> OLGUN
-    2. Domates yok ama yaprak/bitki varsa -> FİLİZ (FİDE)
-    3. Hiçbiri yoksa -> TOHUM
-    Sonucu C# Backend ekibinin tüketebileceği JSON formatında döner.
-    """
-    if not os.path.exists(fotograf_yolu):
-        return json.dumps({"hata": f"'{fotograf_yolu}' dosyası bulunamadı!"}, ensure_ascii=False)
+    if not 0 < guven_esigi <= 1:
+        raise ValueError("guven_esigi 0 ile 1 arasında olmalıdır.")
+    if sera_id is not None and sera_id <= 0:
+        raise ValueError("sera_id pozitif bir tam sayı olmalıdır.")
 
-    image = cv2.imread(fotograf_yolu)
-    
-    # --- ADIM 1: ÖNCE DOMATES MODELİ İLE KONTROL (Öncelik Olgunlukta) ---
-    domates_sonuclari = domates_modeli(fotograf_yolu, conf=0.30)  
-    domates_bulundu = False
-    domates_detaylari = []
+    fotograf = Path(fotograf_yolu).expanduser().resolve()
+    if not fotograf.is_file():
+        raise FileNotFoundError(f"Görüntü dosyası bulunamadı: {fotograf}")
+    if cv2.imread(str(fotograf)) is None:
+        raise ValueError(f"Görüntü okunamadı: {fotograf}")
 
-    for result in domates_sonuclari:
-        for box in result.boxes:
-            domates_bulundu = True
-            class_id = int(box.cls[0])
-            class_name = domates_modeli.names[class_id] if domates_modeli.names else f"Sinif_{class_id}"
-            confidence = float(box.conf[0])
-            
-            domates_detaylari.append({
-                "durum": class_name,  # ripe, unripe, rotten vb.
-                "guven_skoru": confidence  # Ham skor korundu
-            })
+    hastalik_modeli, domates_modeli = model_yukle()
+    domatesler = _tespitleri_oku(
+        domates_modeli(str(fotograf), conf=guven_esigi, verbose=False),
+        domates_modeli,
+        "durum",
+    )
+    hastaliklar = _tespitleri_oku(
+        hastalik_modeli(str(fotograf), conf=guven_esigi, verbose=False),
+        hastalik_modeli,
+        "hastalikAdi",
+    )
 
-    # Eğer domates bulunduysa direkt OLGUN kabul et
-    if domates_bulundu:
-        # İsteğe bağlı olarak arka planda yaprak/hastalık da taranabilir
-        hastalik_sonuclari = hastalik_modeli(fotograf_yolu, conf=0.30)
-        tespit_edilen_hastaliklar = []
-        for result in hastalik_sonuclari:
-            for box in result.boxes:
-                class_id = int(box.cls[0])
-                class_name = hastalik_modeli.names[class_id] if hastalik_modeli.names else f"Sinif_{class_id}"
-                confidence = float(box.conf[0])
-                tespit_edilen_hastaliklar.append({"hastalik": class_name, "guven_skoru": confidence})
+    if domatesler:
+        bitki_evresi = "Olgun"
+        aciklama = "Bitkide domates tespit edildi."
+    elif hastaliklar:
+        bitki_evresi = "Filiz"
+        aciklama = "Yaprak/bitki tespiti yapıldı, domates tespit edilmedi."
+    else:
+        bitki_evresi = "Tohum"
+        aciklama = "Domates veya yaprak/bitki tespiti yapılamadı."
 
-        sonuc_veri = {
-            "bitki_evresi": "Olgun",
-            "yaprak_tespit_edildi_mi": len(tespit_edilen_hastaliklar) > 0,
-            "domates_tespit_edildi_mi": True,
-            "hastalik_detaylari": tespit_edilen_hastaliklar,
-            "domates_detaylari": domates_detaylari,
-            "aciklama": "Bitkide domates tespit edildi, olgunluk aşamasında."
-        }
-        return json.dumps(sonuc_veri, indent=4, ensure_ascii=False)
-
-
-    # --- ADIM 2: DOMATES YOKSA YAPRAK / HASTALIK MODELİ İLE KONTROL ---
-    hastalik_sonuclari = hastalik_modeli(fotograf_yolu, conf=0.30)  
-    yaprak_bulundu = False
-    tespit_edilen_hastaliklar = []
-
-    for result in hastalik_sonuclari:
-        for box in result.boxes:
-            yaprak_bulundu = True
-            class_id = int(box.cls[0])
-            class_name = hastalik_modeli.names[class_id] if hastalik_modeli.names else f"Sinif_{class_id}"
-            confidence = float(box.conf[0])
-            
-            tespit_edilen_hastaliklar.append({
-                "hastalik": class_name,
-                "guven_skoru": confidence  # Ham skor korundu
-            })
-
-    # Yaprak bulunduysa -> FİLİZ (FİDE)
-    if yaprak_bulundu:
-        sonuc_veri = {
-            "bitki_evresi": "Filiz",
-            "yaprak_tespit_edildi_mi": True,
-            "domates_tespit_edildi_mi": False,
-            "hastalik_detaylari": tespit_edilen_hastaliklar,
-            "domates_detaylari": [],
-            "aciklama": "Bitkide yaprak tespit edildi ancak domates yok, filiz/fide aşamasında."
-        }
-        return json.dumps(sonuc_veri, indent=4, ensure_ascii=False)
-
-
-    # --- ADIM 3: NE DOMATES NE DE YAPRAK VARSA -> TOHUM ---
-    sonuc_veri = {
-        "bitki_evresi": "Tohum",
-        "yaprak_tespit_edildi_mi": False,
-        "domates_tespit_edildi_mi": False,
-        "hastalik_detaylari": [],
-        "domates_detaylari": [],
-        "aciklama": "Ekranda ne domates ne de yaprak tespit edilemedi, bitki tohum aşamasında."
+    return {
+        "seraId": sera_id,
+        "bitkiEvresi": bitki_evresi,
+        "yaprakTespitEdildiMi": bool(hastaliklar),
+        "domatesTespitEdildiMi": bool(domatesler),
+        "hastalikDetaylari": hastaliklar,
+        "domatesDetaylari": domatesler,
+        "fotografYolu": str(fotograf),
+        "analizZamani": datetime.now(timezone.utc).isoformat(),
+        "guvenEsigi": round(guven_esigi * 100, 2),
+        "aciklama": aciklama,
     }
-    return json.dumps(sonuc_veri, indent=4, ensure_ascii=False)
 
 
-# ---------------- TEST ÇALIŞTIRMASI ----------------
+def _argumanlari_oku() -> argparse.Namespace:
+    ayrac = argparse.ArgumentParser(description="Akıllı Sera görüntü analizi")
+    ayrac.add_argument("fotograf", type=Path, help="Analiz edilecek görüntü")
+    ayrac.add_argument("--sera-id", type=int, default=None, help="İlgili sera ID")
+    ayrac.add_argument(
+        "--guven-esigi",
+        type=float,
+        default=VARSAYILAN_GUVEN_ESIGI,
+        help="YOLO güven eşiği (0-1, varsayılan: 0.30)",
+    )
+    ayrac.add_argument(
+        "--cikti",
+        type=Path,
+        default=None,
+        help="JSON sonucunun yazılacağı dosya",
+    )
+    return ayrac.parse_args()
+
+
+def main() -> int:
+    argumanlar = _argumanlari_oku()
+    try:
+        sonuc = akilli_sera_analiz_et(
+            argumanlar.fotograf,
+            sera_id=argumanlar.sera_id,
+            guven_esigi=argumanlar.guven_esigi,
+        )
+    except (FileNotFoundError, ValueError) as hata:
+        print(json.dumps({"hata": str(hata)}, ensure_ascii=False))
+        return 1
+
+    sonuc_json = json.dumps(sonuc, ensure_ascii=False, indent=2)
+    if argumanlar.cikti:
+        argumanlar.cikti.parent.mkdir(parents=True, exist_ok=True)
+        argumanlar.cikti.write_text(sonuc_json + "\n", encoding="utf-8")
+    print(sonuc_json)
+    return 0
+
+
 if __name__ == "__main__":
-    test_fotografi = "images (6).jpg" 
-    
-    json_cikti = akilli_sera_analiz_et(test_fotografi)
-    
-    print("\n--- BACKEND'E (C#) GÖNDERİLECEK JSON ÇIKTISI ---")
-    print(json_cikti)
+    raise SystemExit(main())
