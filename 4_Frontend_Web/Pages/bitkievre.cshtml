@@ -1,0 +1,845 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Bitki Evreleri";
+}
+
+<div class="content-header mb-4">
+
+    <h1>🌱 Bitki Evreleri</h1>
+
+    <p class="text-muted">
+        Bitkinin gelişim evreleri ve uygun ortam değerleri
+    </p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- BİTKİ / EVRE SEÇİMİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            🌿 Bitki Evresi Seç
+        </h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <label for="evreSecimi"
+               class="form-label">
+
+            Bitki / Evre
+
+        </label>
+
+
+        <select id="evreSecimi"
+                class="form-select"
+                disabled>
+
+            <option value="">
+                Veriler yükleniyor...
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- DURUM MESAJLARI -->
+<!-- ====================================================== -->
+
+<div id="evreYukleniyor"
+     class="alert alert-info">
+
+    <i class="fas fa-spinner fa-spin me-2"></i>
+    Bitki evresi verileri yükleniyor...
+
+</div>
+
+
+<div id="evreHata"
+     class="alert alert-danger d-none">
+</div>
+
+
+<div id="evreBos"
+     class="alert alert-warning d-none">
+
+    Bitki evresi kaydı bulunamadı.
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- BİTKİ VE EVRE -->
+<!-- ====================================================== -->
+
+<div class="row">
+
+    <!-- BİTKİ -->
+    <div class="col-lg-6 col-md-6 col-12">
+
+        <div class="small-box text-bg-success">
+
+            <div class="inner">
+
+                <h3 id="bitkiAdi">
+                    --
+                </h3>
+
+                <p>
+                    Bitki Adı
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌿
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- EVRE -->
+    <div class="col-lg-6 col-md-6 col-12">
+
+        <div class="small-box text-bg-primary">
+
+            <div class="inner">
+
+                <h3 id="evreAdi">
+                    --
+                </h3>
+
+                <p>
+                    Evre Adı
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌱
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SICAKLIK -->
+<!-- ====================================================== -->
+
+<div class="card mt-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            🌡️ Sıcaklık Değerleri
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Değer
+                        </th>
+
+                        <th>
+                            Minimum
+                        </th>
+
+                        <th>
+                            Maksimum
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <!-- GENEL SICAKLIK -->
+                    <tr>
+
+                        <td>
+                            Genel Sıcaklık
+                        </td>
+
+                        <td id="minSicaklik">
+                            --
+                        </td>
+
+                        <td>
+                            --
+                        </td>
+
+                    </tr>
+
+
+                    <!-- GÜNDÜZ -->
+                    <tr>
+
+                        <td>
+                            ☀️ Gündüz
+                        </td>
+
+                        <td id="gunduzMinSicaklik">
+                            --
+                        </td>
+
+                        <td id="gunduzMaxSicaklik">
+                            --
+                        </td>
+
+                    </tr>
+
+
+                    <!-- GECE -->
+                    <tr>
+
+                        <td>
+                            🌙 Gece
+                        </td>
+
+                        <td id="geceMinSicaklik">
+                            --
+                        </td>
+
+                        <td id="geceMaxSicaklik">
+                            --
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- NEM -->
+<!-- ====================================================== -->
+
+<div class="card mt-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            💧 Nem Değerleri
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Değer
+                        </th>
+
+                        <th>
+                            Minimum
+                        </th>
+
+                        <th>
+                            Maksimum
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <!-- TOPRAK NEMİ -->
+                    <tr>
+
+                        <td>
+                            🌱 Toprak Nemi
+                        </td>
+
+                        <td id="minToprakNemi">
+                            --
+                        </td>
+
+                        <td id="maxToprakNemi">
+                            --
+                        </td>
+
+                    </tr>
+
+
+                    <!-- ORTAM NEMİ -->
+                    <tr>
+
+                        <td>
+                            💧 Ortam Nemi
+                        </td>
+
+                        <td id="minOrtamNemi">
+                            --
+                        </td>
+
+                        <td id="maxOrtamNemi">
+                            --
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        // =====================================================
+        // API'DEN GELEN EVRELER
+        // =====================================================
+
+        let bitkiEvreleri = [];
+
+
+
+        // =====================================================
+        // DEĞER YAZDIRMA
+        // =====================================================
+
+        function degerGoster(
+            deger,
+            birim
+        ) {
+
+            if (
+                deger === null ||
+                deger === undefined
+            ) {
+
+                return "--";
+
+            }
+
+            return deger + " " + birim;
+
+        }
+
+
+
+        // =====================================================
+        // BİTKİ EVRELERİNİ GETİR
+        // =====================================================
+
+        async function bitkiEvreleriniGetir() {
+
+            const loading =
+                document.getElementById(
+                    "evreYukleniyor"
+                );
+
+
+            const hata =
+                document.getElementById(
+                    "evreHata"
+                );
+
+
+            const bos =
+                document.getElementById(
+                    "evreBos"
+                );
+
+
+            const select =
+                document.getElementById(
+                    "evreSecimi"
+                );
+
+
+            loading.classList.remove(
+                "d-none"
+            );
+
+
+            hata.classList.add(
+                "d-none"
+            );
+
+
+            bos.classList.add(
+                "d-none"
+            );
+
+
+            select.disabled =
+                true;
+
+
+            try {
+
+                // Tek API base URL api.js'den geliyor
+
+                const veriler =
+                    await apiGet(
+                        "/api/BitkiEvre/liste"
+                    );
+
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                // ==========================================
+                // BOŞ VERİ
+                // ==========================================
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    bitkiEvreleri =
+                        [];
+
+
+                    bos.classList.remove(
+                        "d-none"
+                    );
+
+
+                    select.innerHTML =
+                        '<option value="">Kayıt bulunamadı</option>';
+
+
+                    bilgileriTemizle();
+
+                    return;
+
+                }
+
+
+                // ==========================================
+                // VERİLER
+                // ==========================================
+
+                bitkiEvreleri =
+                    veriler;
+
+
+                evreSecimleriniOlustur();
+
+
+                select.disabled =
+                    false;
+
+
+                // İlk evreyi göster
+
+                select.value =
+                    String(
+                        bitkiEvreleri[0].evreId
+                    );
+
+
+                evreGoster(
+                    bitkiEvreleri[0]
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Bitki Evre API hatası:",
+                    error
+                );
+
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                hata.classList.remove(
+                    "d-none"
+                );
+
+
+                hata.innerText =
+                    "Bitki evreleri alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+
+                select.innerHTML =
+                    '<option value="">API bağlantı hatası</option>';
+
+
+                select.disabled =
+                    true;
+
+
+                bilgileriTemizle();
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // SELECT DOLDUR
+        // =====================================================
+
+        function evreSecimleriniOlustur() {
+
+            const select =
+                document.getElementById(
+                    "evreSecimi"
+                );
+
+
+            select.innerHTML =
+                "";
+
+
+            bitkiEvreleri.forEach(
+                function (evre) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        evre.evreId;
+
+
+                    option.textContent =
+                        (evre.bitkiAdi ?? "Bitki")
+                        +
+                        " - "
+                        +
+                        (evre.evreAdi ?? "Evre");
+
+
+                    select.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        // =====================================================
+        // EVRE BİLGİLERİNİ GÖSTER
+        // =====================================================
+
+        function evreGoster(evre) {
+
+            if (!evre) {
+
+                bilgileriTemizle();
+
+                return;
+
+            }
+
+
+            // BİTKİ
+
+            document.getElementById(
+                "bitkiAdi"
+            ).innerText =
+                evre.bitkiAdi ??
+                "--";
+
+
+            // EVRE
+
+            document.getElementById(
+                "evreAdi"
+            ).innerText =
+                evre.evreAdi ??
+                "--";
+
+
+            // GENEL MİN SICAKLIK
+
+            document.getElementById(
+                "minSicaklik"
+            ).innerText =
+                degerGoster(
+                    evre.minSicaklik,
+                    "°C"
+                );
+
+
+            // GÜNDÜZ MİN
+
+            document.getElementById(
+                "gunduzMinSicaklik"
+            ).innerText =
+                degerGoster(
+                    evre.gunduzMinSicaklik,
+                    "°C"
+                );
+
+
+            // GÜNDÜZ MAX
+
+            document.getElementById(
+                "gunduzMaxSicaklik"
+            ).innerText =
+                degerGoster(
+                    evre.gunduzMaxSicaklik,
+                    "°C"
+                );
+
+
+            // GECE MİN
+
+            document.getElementById(
+                "geceMinSicaklik"
+            ).innerText =
+                degerGoster(
+                    evre.geceMinSicaklik,
+                    "°C"
+                );
+
+
+            // GECE MAX
+
+            document.getElementById(
+                "geceMaxSicaklik"
+            ).innerText =
+                degerGoster(
+                    evre.geceMaxSicaklik,
+                    "°C"
+                );
+
+
+            // TOPRAK NEM MİN
+
+            document.getElementById(
+                "minToprakNemi"
+            ).innerText =
+                degerGoster(
+                    evre.minToprakNemi,
+                    "%"
+                );
+
+
+            // TOPRAK NEM MAX
+
+            document.getElementById(
+                "maxToprakNemi"
+            ).innerText =
+                degerGoster(
+                    evre.maxToprakNemi,
+                    "%"
+                );
+
+
+            // ORTAM NEM MİN
+
+            document.getElementById(
+                "minOrtamNemi"
+            ).innerText =
+                degerGoster(
+                    evre.minOrtamNemi,
+                    "%"
+                );
+
+
+            // ORTAM NEM MAX
+
+            document.getElementById(
+                "maxOrtamNemi"
+            ).innerText =
+                degerGoster(
+                    evre.maxOrtamNemi,
+                    "%"
+                );
+
+        }
+
+
+
+        // =====================================================
+        // BİLGİLERİ TEMİZLE
+        // =====================================================
+
+        function bilgileriTemizle() {
+
+            document.getElementById(
+                "bitkiAdi"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "evreAdi"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "minSicaklik"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "gunduzMinSicaklik"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "gunduzMaxSicaklik"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "geceMinSicaklik"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "geceMaxSicaklik"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "minToprakNemi"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "maxToprakNemi"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "minOrtamNemi"
+            ).innerText =
+                "--";
+
+
+            document.getElementById(
+                "maxOrtamNemi"
+            ).innerText =
+                "--";
+
+        }
+
+
+
+        // =====================================================
+        // EVRE DEĞİŞTİRİLİNCE
+        // =====================================================
+
+        document.getElementById(
+            "evreSecimi"
+        ).addEventListener(
+            "change",
+            function () {
+
+                const secilenId =
+                    Number(
+                        this.value
+                    );
+
+
+                const secilenEvre =
+                    bitkiEvreleri.find(
+                        function (evre) {
+
+                            return (
+                                evre.evreId ===
+                                secilenId
+                            );
+
+                        }
+                    );
+
+
+                evreGoster(
+                    secilenEvre
+                );
+
+            }
+        );
+
+
+
+        // =====================================================
+        // SAYFA AÇILDIĞINDA
+        // =====================================================
+
+        bitkiEvreleriniGetir();
+
+    </script>
+
+}

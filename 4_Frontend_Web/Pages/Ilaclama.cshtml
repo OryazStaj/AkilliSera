@@ -1,0 +1,662 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "İlaçlama";
+}
+
+<div class="content-header mb-4">
+
+    <h1>🧴 İlaçlama</h1>
+
+    <p class="text-muted">
+        İlaçlama kayıtlarını görüntüleyin ve yeni kayıt ekleyin.
+    </p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- YENİ İLAÇLAMA KAYDI -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            Yeni İlaçlama Kaydı
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <div class="mb-3">
+
+                    <label for="hastalikId"
+                           class="form-label">
+                        Hastalık ID
+                    </label>
+
+                    <input type="number"
+                           id="hastalikId"
+                           class="form-control"
+                           min="1"
+                           placeholder="Hastalık ID giriniz" />
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="mb-3">
+
+                    <label for="ilacAdi"
+                           class="form-label">
+                        İlaç Adı
+                    </label>
+
+                    <input type="text"
+                           id="ilacAdi"
+                           class="form-control"
+                           placeholder="İlaç adını giriniz" />
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="mb-3">
+
+                    <label for="uygulamaZamani"
+                           class="form-label">
+                        Uygulama Zamanı
+                    </label>
+
+                    <input type="datetime-local"
+                           id="uygulamaZamani"
+                           class="form-control" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button type="button"
+                id="ilaclamaEkleBtn"
+                class="btn btn-success"
+                onclick="ilaclamaEkle()">
+
+            <i class="fas fa-plus"></i>
+            İlaçlama Kaydı Ekle
+
+        </button>
+
+
+        <div id="ilaclamaMesaj"
+             class="mt-3 d-none">
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- İLAÇLAMA GEÇMİŞİ -->
+<!-- ====================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            📋 İlaçlama Geçmişi
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div id="gecmisYukleniyor"
+             class="alert alert-info">
+
+            <i class="fas fa-spinner fa-spin me-2"></i>
+            İlaçlama geçmişi yükleniyor...
+
+        </div>
+
+
+        <div id="gecmisHata"
+             class="alert alert-danger d-none">
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+
+                    <tr>
+                        <th>İlaçlama ID</th>
+                        <th>Hastalık ID</th>
+                        <th>İlaç Adı</th>
+                        <th>Uygulama Zamanı</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="ilaclamaTablosu">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+        // =========================================================
+        // TARİHİ GÖSTERİLEBİLİR HALE GETİR
+        // =========================================================
+
+        function tarihGoster(tarih) {
+
+            if (!tarih) {
+                return "--";
+            }
+
+
+            const tarihNesnesi =
+                new Date(tarih);
+
+
+            if (
+                isNaN(
+                    tarihNesnesi.getTime()
+                )
+            ) {
+
+                return "--";
+
+            }
+
+
+            return tarihNesnesi.toLocaleString(
+                "tr-TR"
+            );
+
+        }
+
+
+
+        // =========================================================
+        // MESAJ GÖSTER
+        // =========================================================
+
+        function mesajGoster(
+            mesaj,
+            tur
+        ) {
+
+            const alan =
+                document.getElementById(
+                    "ilaclamaMesaj"
+                );
+
+
+            alan.className =
+                "alert alert-" +
+                tur +
+                " mt-3";
+
+
+            alan.innerText =
+                mesaj;
+
+        }
+
+
+
+        // =========================================================
+        // YENİ İLAÇLAMA KAYDI EKLE
+        // =========================================================
+
+        async function ilaclamaEkle() {
+
+            const hastalikId =
+                document.getElementById(
+                    "hastalikId"
+                ).value;
+
+
+            const ilacAdi =
+                document.getElementById(
+                    "ilacAdi"
+                ).value.trim();
+
+
+            const uygulamaZamani =
+                document.getElementById(
+                    "uygulamaZamani"
+                ).value;
+
+
+            const buton =
+                document.getElementById(
+                    "ilaclamaEkleBtn"
+                );
+
+
+            // -----------------------------------------
+            // FORM KONTROLÜ
+            // -----------------------------------------
+
+            if (
+                hastalikId === "" ||
+                ilacAdi === "" ||
+                uygulamaZamani === ""
+            ) {
+
+                mesajGoster(
+                    "Lütfen bütün alanları doldurun.",
+                    "warning"
+                );
+
+                return;
+            }
+
+
+            if (
+                Number(hastalikId) <= 0
+            ) {
+
+                mesajGoster(
+                    "Hastalık ID 0'dan büyük olmalıdır.",
+                    "warning"
+                );
+
+                return;
+            }
+
+
+
+            // -----------------------------------------
+            // BACKEND MODELİNE GÖNDERİLECEK VERİ
+            // IlaclamaTakip:
+            // HastalikId
+            // IlacAdi
+            // UygulamaZamani
+            // -----------------------------------------
+
+            const yeniIlaclama = {
+
+                hastalikId:
+                    Number(hastalikId),
+
+                ilacAdi:
+                    ilacAdi,
+
+                uygulamaZamani:
+                    uygulamaZamani
+
+            };
+
+
+            try {
+
+                buton.disabled =
+                    true;
+
+
+                buton.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+
+
+
+                const sonuc =
+                    await apiPost(
+                        "/api/Ilaclama/ekle",
+                        yeniIlaclama
+                    );
+
+
+                // Backend'in gerçek mesajını göster
+
+                mesajGoster(
+                    sonuc?.message ??
+                    "İlaçlama kaydı başarıyla eklendi.",
+                    "success"
+                );
+
+
+
+                // Formu temizle
+
+                document.getElementById(
+                    "hastalikId"
+                ).value =
+                    "";
+
+
+                document.getElementById(
+                    "ilacAdi"
+                ).value =
+                    "";
+
+
+                document.getElementById(
+                    "uygulamaZamani"
+                ).value =
+                    "";
+
+
+
+                // Yeni kayıt sonrası tabloyu yenile
+
+                await ilaclamaGecmisiniGetir();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "İlaçlama ekleme hatası:",
+                    error
+                );
+
+
+                mesajGoster(
+                    error.message ||
+                    "İlaçlama kaydı eklenemedi.",
+                    "danger"
+                );
+
+            }
+
+            finally {
+
+                buton.disabled =
+                    false;
+
+
+                buton.innerHTML =
+                    '<i class="fas fa-plus"></i> İlaçlama Kaydı Ekle';
+
+            }
+
+        }
+
+
+
+        // =========================================================
+        // İLAÇLAMA GEÇMİŞİNİ GETİR
+        // =========================================================
+
+        async function ilaclamaGecmisiniGetir() {
+
+            const tablo =
+                document.getElementById(
+                    "ilaclamaTablosu"
+                );
+
+
+            const loading =
+                document.getElementById(
+                    "gecmisYukleniyor"
+                );
+
+
+            const hataAlani =
+                document.getElementById(
+                    "gecmisHata"
+                );
+
+
+            // Loading
+
+            loading.classList.remove(
+                "d-none"
+            );
+
+
+            hataAlani.classList.add(
+                "d-none"
+            );
+
+
+            tablo.innerHTML =
+                "";
+
+
+            try {
+
+                const veriler =
+                    await apiGet(
+                        "/api/Ilaclama/gecmis"
+                    );
+
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                // -----------------------------------------
+                // BOŞ VERİ
+                // -----------------------------------------
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    tablo.innerHTML = `
+
+                        <tr>
+
+                            <td colspan="4"
+                                class="text-center text-muted">
+
+                                Henüz ilaçlama kaydı bulunmuyor.
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
+
+                }
+
+
+
+                // -----------------------------------------
+                // TARİHE GÖRE SIRALA
+                // -----------------------------------------
+
+                const siraliVeriler =
+                    [...veriler].sort(
+                        function (a, b) {
+
+                            return (
+                                new Date(
+                                    b.uygulamaZamani
+                                ).getTime()
+                                -
+                                new Date(
+                                    a.uygulamaZamani
+                                ).getTime()
+                            );
+
+                        }
+                    );
+
+
+
+                // -----------------------------------------
+                // TABLO
+                // -----------------------------------------
+
+                siraliVeriler.forEach(
+                    function (ilaclama) {
+
+                        const satir =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        const idHucre =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        idHucre.innerText =
+                            ilaclama.ilaclamaId ??
+                            "--";
+
+
+                        const hastalikHucre =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        hastalikHucre.innerText =
+                            ilaclama.hastalikId ??
+                            "--";
+
+
+                        const ilacHucre =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        ilacHucre.innerText =
+                            ilaclama.ilacAdi ??
+                            "--";
+
+
+                        const tarihHucre =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        tarihHucre.innerText =
+                            tarihGoster(
+                                ilaclama.uygulamaZamani
+                            );
+
+
+                        satir.appendChild(
+                            idHucre
+                        );
+
+
+                        satir.appendChild(
+                            hastalikHucre
+                        );
+
+
+                        satir.appendChild(
+                            ilacHucre
+                        );
+
+
+                        satir.appendChild(
+                            tarihHucre
+                        );
+
+
+                        tablo.appendChild(
+                            satir
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                hataAlani.classList.remove(
+                    "d-none"
+                );
+
+
+                hataAlani.innerText =
+                    "İlaçlama geçmişi alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+
+                tablo.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="4"
+                            class="text-center text-danger">
+
+                            İlaçlama verileri görüntülenemedi.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+
+                console.error(
+                    "İlaçlama geçmişi hatası:",
+                    error
+                );
+
+            }
+
+        }
+
+
+
+        // =========================================================
+        // SAYFA AÇILDIĞINDA
+        // =========================================================
+
+        ilaclamaGecmisiniGetir();
+
+    </script>
+
+}

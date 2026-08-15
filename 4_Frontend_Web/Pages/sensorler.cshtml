@@ -1,0 +1,948 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Sensörler";
+}
+
+<div class="content-header mb-4">
+
+    <h1>🌡️ Sensör ve Sistem Durumları</h1>
+
+    <p class="text-muted">
+        Seradaki sensörlerin anlık değerlerini ve sistem bağlantı durumunu takip edebilirsiniz.
+    </p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- ESP32 DURUMU -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            📡 ESP32 Bağlantı Durumu
+        </h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            Durum:
+
+            <span id="cihazDurumu"
+                  class="badge bg-secondary">
+
+                Kontrol ediliyor...
+
+            </span>
+        </p>
+
+
+        <p class="mb-0">
+
+            <strong>Son Görülme:</strong>
+
+            <span id="sonGorulme">
+                --
+            </span>
+
+        </p>
+
+
+        <div id="cihazHata"
+             class="alert alert-danger mt-3 d-none">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- GENEL DURUM -->
+<!-- ====================================================== -->
+
+<div id="genelSistemDurumu"
+     class="alert alert-info">
+
+    <i class="fas fa-spinner fa-spin me-2"></i>
+    Sensör verileri yükleniyor...
+
+</div>
+
+
+<div id="arizaBildirimleri">
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SENSÖRLER -->
+<!-- ====================================================== -->
+
+<h4 class="mb-3">
+    Sensörler
+</h4>
+
+
+<div class="row">
+
+
+    <!-- SICAKLIK -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary"
+             id="sicaklikKarti">
+
+            <div class="inner">
+
+                <h3 id="sicaklikDegeri">
+                    --
+                </h3>
+
+                <p>Sıcaklık</p>
+
+                <span id="sicaklikDurumu"
+                      class="badge bg-light text-dark">
+
+                    Veri bekleniyor
+
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌡️
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ORTAM NEM -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary"
+             id="ortamNemKarti">
+
+            <div class="inner">
+
+                <h3 id="ortamNemDegeri">
+                    --
+                </h3>
+
+                <p>Ortam Nem</p>
+
+                <span id="ortamNemDurumu"
+                      class="badge bg-light text-dark">
+
+                    Veri bekleniyor
+
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                💧
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- TOPRAK NEM -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary"
+             id="toprakNemKarti">
+
+            <div class="inner">
+
+                <h3 id="toprakNemDegeri">
+                    --
+                </h3>
+
+                <p>Toprak Nem</p>
+
+                <span id="toprakNemDurumu"
+                      class="badge bg-light text-dark">
+
+                    Veri bekleniyor
+
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌱
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- CİHAZLAR -->
+<!-- ====================================================== -->
+
+<h4 class="mt-4 mb-3">
+    Cihaz Durumları
+</h4>
+
+
+<div class="row">
+
+
+    <!-- SULAMA -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary">
+
+            <div class="inner">
+
+                <h3>
+                    Sulama
+                </h3>
+
+                <p>Sulama Sistemi</p>
+
+                <span class="badge bg-warning text-dark">
+                    Durum endpoint'i bekleniyor
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                💦
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- FAN -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary">
+
+            <div class="inner">
+
+                <h3>
+                    Fan
+                </h3>
+
+                <p>Fan Sistemi</p>
+
+                <span class="badge bg-warning text-dark">
+                    Durum endpoint'i bekleniyor
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌀
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- İLAÇLAMA -->
+    <div class="col-lg-4 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary"
+             id="ilaclamaKarti">
+
+            <div class="inner">
+
+                <h3 id="ilaclamaDurumu">
+                    --
+                </h3>
+
+                <p>İlaçlama Sistemi</p>
+
+                <span id="ilaclamaHataDurumu"
+                      class="badge bg-light text-dark">
+
+                    Yükleniyor
+
+                </span>
+
+            </div>
+
+            <div class="small-box-icon">
+                🧴
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+@section Scripts {
+
+    <!-- SIGNALR -->
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+
+
+    <script>
+
+        // =====================================================
+        // TARİH
+        // =====================================================
+
+        function tarihGoster(tarih) {
+
+            if (!tarih) {
+                return "--";
+            }
+
+
+            const tarihNesnesi =
+                new Date(tarih);
+
+
+            if (
+                isNaN(
+                    tarihNesnesi.getTime()
+                )
+            ) {
+
+                return "--";
+
+            }
+
+
+            return tarihNesnesi.toLocaleString(
+                "tr-TR"
+            );
+
+        }
+
+
+
+        // =====================================================
+        // ARIZA MESAJI
+        // =====================================================
+
+        function arizaEkle(mesaj) {
+
+            const alan =
+                document.getElementById(
+                    "arizaBildirimleri"
+                );
+
+
+            const mesajDiv =
+                document.createElement(
+                    "div"
+                );
+
+
+            mesajDiv.className =
+                "alert alert-danger";
+
+
+            mesajDiv.innerText =
+                mesaj;
+
+
+            alan.appendChild(
+                mesajDiv
+            );
+
+        }
+
+
+
+        // =====================================================
+        // ARIZA PANELİNİ TEMİZLE
+        // =====================================================
+
+        function arizaTemizle() {
+
+            document.getElementById(
+                "arizaBildirimleri"
+            ).innerHTML =
+                "";
+
+        }
+
+
+
+        // =====================================================
+        // SENSÖR KARTI GÜNCELLE
+        // =====================================================
+
+        function sensorKartiGuncelle(
+            kartId,
+            degerId,
+            durumId,
+            deger,
+            birim,
+            sensorAdi
+        ) {
+
+            const kart =
+                document.getElementById(
+                    kartId
+                );
+
+
+            const degerAlani =
+                document.getElementById(
+                    degerId
+                );
+
+
+            const durum =
+                document.getElementById(
+                    durumId
+                );
+
+
+            if (
+                deger !== null &&
+                deger !== undefined
+            ) {
+
+                degerAlani.innerText =
+                    Number(deger).toFixed(1) +
+                    " " +
+                    birim;
+
+
+                durum.innerText =
+                    "Çalışıyor";
+
+
+                durum.className =
+                    "badge bg-light text-dark";
+
+
+                kart.className =
+                    "small-box text-bg-success";
+
+            }
+            else {
+
+                degerAlani.innerText =
+                    "--";
+
+
+                durum.innerText =
+                    "Veri Alınamıyor";
+
+
+                durum.className =
+                    "badge bg-light text-dark";
+
+
+                kart.className =
+                    "small-box text-bg-danger";
+
+
+                arizaEkle(
+                    "⚠️ " +
+                    sensorAdi +
+                    " sensöründen veri alınamıyor."
+                );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // TÜM SENSÖR KARTLARINI GÜNCELLE
+        // =====================================================
+
+        function sensorleriGuncelle(
+            sicaklik,
+            ortamNem,
+            toprakNem
+        ) {
+
+            arizaTemizle();
+
+
+            sensorKartiGuncelle(
+                "sicaklikKarti",
+                "sicaklikDegeri",
+                "sicaklikDurumu",
+                sicaklik,
+                "°C",
+                "Sıcaklık"
+            );
+
+
+            sensorKartiGuncelle(
+                "ortamNemKarti",
+                "ortamNemDegeri",
+                "ortamNemDurumu",
+                ortamNem,
+                "%",
+                "Ortam nem"
+            );
+
+
+            sensorKartiGuncelle(
+                "toprakNemKarti",
+                "toprakNemDegeri",
+                "toprakNemDurumu",
+                toprakNem,
+                "%",
+                "Toprak nem"
+            );
+
+        }
+
+
+
+        // =====================================================
+        // GEÇMİŞ SENSÖR VERİLERİ
+        // =====================================================
+
+        async function sensorVerileriniGetir() {
+
+            const genelDurum =
+                document.getElementById(
+                    "genelSistemDurumu"
+                );
+
+
+            genelDurum.className =
+                "alert alert-info";
+
+
+            genelDurum.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i>' +
+                'Sensör verileri yükleniyor...';
+
+
+            try {
+
+                const veriler =
+                    await apiGet(
+                        "/api/Sensors/history?limit=50"
+                    );
+
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    genelDurum.className =
+                        "alert alert-warning";
+
+
+                    genelDurum.innerText =
+                        "Henüz sensör verisi bulunmuyor.";
+
+
+                    return;
+
+                }
+
+
+
+                // Backend sırasına güvenmiyoruz.
+
+                const siraliVeriler =
+                    [...veriler].sort(
+                        function (a, b) {
+
+                            return (
+                                new Date(
+                                    a.kayitZamani
+                                ).getTime()
+                                -
+                                new Date(
+                                    b.kayitZamani
+                                ).getTime()
+                            );
+
+                        }
+                    );
+
+
+                const veri =
+                    siraliVeriler[
+                        siraliVeriler.length - 1
+                    ];
+
+
+                sensorleriGuncelle(
+                    veri.ortamSicakligi,
+                    veri.ortamNemi,
+                    veri.toprakNemi
+                );
+
+
+                genelDurum.className =
+                    "alert alert-success";
+
+
+                genelDurum.innerText =
+                    "Sensör verileri alınıyor. Son kayıt: " +
+                    tarihGoster(
+                        veri.kayitZamani
+                    );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Sensör API hatası:",
+                    error
+                );
+
+
+                genelDurum.className =
+                    "alert alert-danger";
+
+
+                genelDurum.innerText =
+                    "Sensör API bağlantısı kurulamadı: " +
+                    (
+                        error.message ||
+                        "Bilinmeyen hata"
+                    );
+
+
+                arizaTemizle();
+
+
+                arizaEkle(
+                    "⚠️ Sensör sistemine bağlantı sağlanamadı."
+                );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // ESP32 ONLINE / OFFLINE
+        // =====================================================
+
+        async function cihazDurumunuGetir() {
+
+            const durum =
+                document.getElementById(
+                    "cihazDurumu"
+                );
+
+
+            const sonGorulme =
+                document.getElementById(
+                    "sonGorulme"
+                );
+
+
+            const hata =
+                document.getElementById(
+                    "cihazHata"
+                );
+
+
+            hata.classList.add(
+                "d-none"
+            );
+
+
+            try {
+
+                const veri =
+                    await apiGet(
+                        "/api/Telemetry/health"
+                    );
+
+
+                if (veri.isOnline) {
+
+                    durum.className =
+                        "badge bg-success";
+
+
+                    durum.innerText =
+                        "Online";
+
+                }
+                else {
+
+                    durum.className =
+                        "badge bg-danger";
+
+
+                    durum.innerText =
+                        "Offline";
+
+                }
+
+
+                sonGorulme.innerText =
+                    tarihGoster(
+                        veri.lastSeen
+                    );
+
+            }
+            catch (error) {
+
+                durum.className =
+                    "badge bg-danger";
+
+
+                durum.innerText =
+                    "Bağlantı Hatası";
+
+
+                sonGorulme.innerText =
+                    "--";
+
+
+                hata.classList.remove(
+                    "d-none"
+                );
+
+
+                hata.innerText =
+                    "ESP32 durum bilgisi alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // İLAÇLAMA
+        // =====================================================
+
+        async function ilaclamaVerileriniGetir() {
+
+            const kart =
+                document.getElementById(
+                    "ilaclamaKarti"
+                );
+
+
+            const durum =
+                document.getElementById(
+                    "ilaclamaDurumu"
+                );
+
+
+            const hataDurumu =
+                document.getElementById(
+                    "ilaclamaHataDurumu"
+                );
+
+
+            try {
+
+                const veriler =
+                    await apiGet(
+                        "/api/Ilaclama/gecmis"
+                    );
+
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    durum.innerText =
+                        "Kayıt Yok";
+
+
+                    hataDurumu.innerText =
+                        "İlaçlama kaydı bulunmuyor";
+
+
+                    kart.className =
+                        "small-box text-bg-secondary";
+
+
+                    return;
+
+                }
+
+
+                durum.innerText =
+                    "Kayıt Var";
+
+
+                hataDurumu.innerText =
+                    "API Çalışıyor";
+
+
+                kart.className =
+                    "small-box text-bg-success";
+
+            }
+            catch (error) {
+
+                durum.innerText =
+                    "Bağlantı Yok";
+
+
+                hataDurumu.innerText =
+                    "API Hatası";
+
+
+                kart.className =
+                    "small-box text-bg-danger";
+
+
+                arizaEkle(
+                    "⚠️ İlaçlama API bağlantısı kurulamadı."
+                );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // SIGNALR
+        // =====================================================
+
+        const seraConnection =
+            new signalR.HubConnectionBuilder()
+
+                .withUrl(
+                    `${API_BASE_URL}/serahub`
+                )
+
+                .withAutomaticReconnect()
+
+                .build();
+
+
+
+        seraConnection.on(
+            "ReceiveTelemetry",
+            function (veri) {
+
+                console.log(
+                    "Canlı telemetry:",
+                    veri
+                );
+
+
+                sensorleriGuncelle(
+                    veri.temperature,
+                    veri.humidity,
+                    veri.soilMoisture
+                );
+
+
+                const genelDurum =
+                    document.getElementById(
+                        "genelSistemDurumu"
+                    );
+
+
+                genelDurum.className =
+                    "alert alert-success";
+
+
+                genelDurum.innerText =
+                    "Canlı sensör verisi alınıyor. Son veri: " +
+                    tarihGoster(
+                        veri.recordedAt
+                    );
+
+            }
+        );
+
+
+
+        async function signalRBaslat() {
+
+            try {
+
+                await seraConnection.start();
+
+
+                console.log(
+                    "SignalR bağlantısı kuruldu."
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "SignalR bağlantı hatası:",
+                    error
+                );
+
+
+                arizaEkle(
+                    "⚠️ Canlı sensör bağlantısı kurulamadı."
+                );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // SAYFA BAŞLANGICI
+        // =====================================================
+
+        async function sayfayiBaslat() {
+
+            await sensorVerileriniGetir();
+
+            await signalRBaslat();
+
+            cihazDurumunuGetir();
+
+            ilaclamaVerileriniGetir();
+
+        }
+
+
+        sayfayiBaslat();
+
+
+
+        // Health kontrolü
+        setInterval(
+            cihazDurumunuGetir,
+            10000
+        );
+
+    </script>
+
+}

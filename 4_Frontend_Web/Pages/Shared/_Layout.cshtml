@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"] - Sera Otomasyonu</title>
+
+
+    <!-- ADMINLTE -->
+    <link rel="stylesheet"
+          href="~/dist/css/adminlte.css" />
+
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+</head>
+
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+
+
+    <div class="app-wrapper">
+
+
+        <!-- ÜST MENÜ -->
+        <nav class="app-header navbar navbar-expand bg-body">
+
+            <div class="container-fluid">
+
+
+                <ul class="navbar-nav">
+
+                    <li class="nav-item">
+
+                        <a class="nav-link"
+                           data-lte-toggle="sidebar"
+                           href="#"
+                           role="button">
+
+                            <i class="fas fa-bars"></i>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+
+                        <a asp-page="/Giris"
+                           class="nav-link">
+
+                            <i class="fas fa-user"></i>
+
+                            Kullanıcı
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+
+            </div>
+
+        </nav>
+
+
+
+        <!-- SOL MENÜ -->
+        <aside class="app-sidebar bg-dark shadow"
+               data-bs-theme="dark">
+
+
+            <div class="sidebar-brand">
+
+                <a asp-page="/Index"
+                   class="brand-link">
+
+                    <span class="brand-text fw-light">
+
+                        🌿 AKILLI SERA
+
+                    </span>
+
+                </a>
+
+            </div>
+
+
+
+            <div class="sidebar-wrapper">
+
+
+                <nav class="mt-2">
+
+
+                    <ul class="nav sidebar-menu flex-column"
+                        data-lte-toggle="treeview"
+                        role="menu"
+                        data-accordion="false">
+
+
+                        <!-- ANA SAYFA -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Index"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-house"></i>
+
+                                <p>
+                                    Ana Sayfa
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- SENSÖRLER -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Sensorler"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-microchip"></i>
+
+                                <p>
+                                    Sensörler
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- GRAFİKLER -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Grafikler"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-chart-line"></i>
+
+                                <p>
+                                    Grafikler
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- KONTROL -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Kontrol"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-sliders"></i>
+
+                                <p>
+                                    Kontrol
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- İLAÇLAMA -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Ilaclama"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-spray-can"></i>
+
+                                <p>
+                                    İlaçlama
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- HASTALIK DURUMU -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Hastalik"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-leaf"></i>
+
+                                <p>
+                                    Hastalık Durumu
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- BİTKİ EVRELERİ -->
+                        <li class="nav-item">
+
+                            <a asp-page="/bitkievre"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-seedling"></i>
+
+                                <p>
+                                    Bitki Evreleri
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+
+                        <!-- KULLANICI -->
+                        <li class="nav-item">
+
+                            <a asp-page="/Giris"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-user"></i>
+
+                                <p>
+                                    Kullanıcı
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+                    </ul>
+
+
+                </nav>
+
+
+            </div>
+
+
+        </aside>
+
+
+
+        <!-- SAYFA İÇERİĞİ -->
+        <main class="app-main">
+
+
+            <div class="app-content">
+
+
+                <div class="container-fluid py-3">
+
+                    @RenderBody()
+
+                </div>
+
+
+            </div>
+
+
+        </main>
+
+
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+
+            <strong>
+                Akıllı Sera Otomasyonu
+            </strong>
+
+        </footer>
+
+
+    </div>
+
+
+
+    <!-- JS -->
+    <!-- BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- ADMINLTE -->
+    <script src="~/dist/js/adminlte.js">
+    </script>
+
+
+    <!-- ORTAK API BAĞLANTISI -->
+    <script src="~/js/api.js">
+    </script>
+
+
+    <!-- INDEX VE DİĞER SAYFALARIN SCRIPT KISMI -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+
+</body>
+
+</html>
