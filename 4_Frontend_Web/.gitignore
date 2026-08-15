@@ -1,7 +1,6 @@
 # Frontend .gitignore Kuralları
 # Yüzlerce megabaytlık Node paketlerinin repoya girmesi engellendi:
 node_modules/
-dist/
 .env
 
 # ASP.NET Core / Razor build outputs and caches
