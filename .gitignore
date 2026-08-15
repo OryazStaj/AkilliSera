@@ -24,7 +24,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-dist/
 coverage/
 
 # Python virtual environments, caches, and test output
