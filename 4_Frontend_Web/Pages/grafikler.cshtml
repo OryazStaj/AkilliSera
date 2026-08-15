@@ -1,0 +1,1701 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Grafikler";
+}
+
+
+<div class="content-header mb-4">
+
+    <h1>📊 Sensör Grafikleri</h1>
+
+    <p class="text-muted">
+        Sıcaklık, ortam nemi ve toprak nemi verilerini geçmiş ve canlı olarak görüntüleyebilirsiniz.
+    </p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- BAĞLANTI DURUMU -->
+<!-- ====================================================== -->
+
+<div id="grafikBildirim"
+     class="alert alert-info">
+
+    <i class="fas fa-spinner fa-spin me-2"></i>
+    Grafik verileri yükleniyor...
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- GENEL BİLGİ KARTLARI -->
+<!-- ====================================================== -->
+
+<div class="row mb-4">
+
+    <div class="col-lg-3 col-md-6 col-12">
+
+        <div class="small-box text-bg-secondary">
+
+            <div class="inner">
+
+                <h3 id="toplamVeriSayisi">
+                    0
+                </h3>
+
+                <p>
+                    Gösterilen Kayıt
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                📋
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-3 col-md-6 col-12">
+
+        <div class="small-box text-bg-primary">
+
+            <div class="inner">
+
+                <h5 id="sonGuncelleme">
+                    --
+                </h5>
+
+                <p>
+                    Son Güncelleme
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                🕐
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-3 col-md-6 col-12">
+
+        <div class="small-box text-bg-danger">
+
+            <div class="inner">
+
+                <h3 id="genelMaxSicaklik">
+                    --
+                </h3>
+
+                <p>
+                    En Yüksek Sıcaklık
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                🔥
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-3 col-md-6 col-12">
+
+        <div class="small-box text-bg-success">
+
+            <div class="inner">
+
+                <h3 id="genelMinToprakNem">
+                    --
+                </h3>
+
+                <p>
+                    En Düşük Toprak Nemi
+                </p>
+
+            </div>
+
+            <div class="small-box-icon">
+                🌱
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- GRAFİK FİLTRESİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            🔎 Grafik Görünümü
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+
+            <span class="me-2">
+                Gösterilecek kayıt:
+            </span>
+
+
+            <button type="button"
+                    class="btn btn-outline-primary grafik-filtre"
+                    onclick="filtreUygula(10, this)">
+
+                Son 10
+
+            </button>
+
+
+            <button type="button"
+                    class="btn btn-outline-primary grafik-filtre"
+                    onclick="filtreUygula(25, this)">
+
+                Son 25
+
+            </button>
+
+
+            <button type="button"
+                    class="btn btn-primary grafik-filtre"
+                    onclick="filtreUygula(50, this)">
+
+                Son 50
+
+            </button>
+
+
+            <button type="button"
+                    class="btn btn-outline-secondary ms-md-auto"
+                    onclick="sensorVerileriniGetir()">
+
+                <i class="fas fa-rotate"></i>
+                Yenile
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- GENEL SENSÖR GRAFİĞİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            📈 Genel Sensör Grafiği
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <p class="text-muted">
+            Sıcaklık, ortam nemi ve toprak neminin zaman içerisindeki değişimini birlikte görüntüleyebilirsiniz.
+        </p>
+
+        <div style="height:400px;">
+
+            <canvas id="genelGrafik"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SICAKLIK GRAFİĞİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            🌡️ Sıcaklık Grafiği
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row mb-4">
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Son Değer
+                    </small>
+
+                    <h4 id="sicaklikAnlik"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Minimum
+                    </small>
+
+                    <h4 id="sicaklikMin"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Maksimum
+                    </small>
+
+                    <h4 id="sicaklikMax"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Ortalama
+                    </small>
+
+                    <h4 id="sicaklikOrtalama"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="sicaklikTrend"
+             class="alert alert-secondary">
+
+            Sıcaklık değişimi hesaplanıyor...
+
+        </div>
+
+
+        <div style="height:350px;">
+
+            <canvas id="sicaklikGrafigi"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- ORTAM NEM GRAFİĞİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            💧 Ortam Nem Grafiği
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row mb-4">
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Son Değer
+                    </small>
+
+                    <h4 id="ortamNemAnlik"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Minimum
+                    </small>
+
+                    <h4 id="ortamNemMin"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Maksimum
+                    </small>
+
+                    <h4 id="ortamNemMax"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Ortalama
+                    </small>
+
+                    <h4 id="ortamNemOrtalama"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="ortamNemTrend"
+             class="alert alert-secondary">
+
+            Ortam nem değişimi hesaplanıyor...
+
+        </div>
+
+
+        <div style="height:350px;">
+
+            <canvas id="ortamNemGrafigi"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- TOPRAK NEM GRAFİĞİ -->
+<!-- ====================================================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            🌱 Toprak Nem Grafiği
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row mb-4">
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Son Değer
+                    </small>
+
+                    <h4 id="toprakNemAnlik"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Minimum
+                    </small>
+
+                    <h4 id="toprakNemMin"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Maksimum
+                    </small>
+
+                    <h4 id="toprakNemMax"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="border rounded p-3">
+
+                    <small class="text-muted">
+                        Ortalama
+                    </small>
+
+                    <h4 id="toprakNemOrtalama"
+                        class="mb-0">
+
+                        --
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="toprakNemTrend"
+             class="alert alert-secondary">
+
+            Toprak nem değişimi hesaplanıyor...
+
+        </div>
+
+
+        <div style="height:350px;">
+
+            <canvas id="toprakNemGrafigi"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+
+
+    <script>
+
+        let tumSensorVerileri = [];
+
+        let aktifLimit = 50;
+
+        let genelGrafik = null;
+
+        let sicaklikGrafik = null;
+
+        let ortamNemGrafik = null;
+
+        let toprakNemGrafik = null;
+
+
+        // =====================================================
+        // GEÇERLİ SAYILAR
+        // =====================================================
+
+        function gecerliSayilar(liste) {
+
+            return liste
+                .filter(function (deger) {
+
+                    return (
+                        deger !== null &&
+                        deger !== undefined &&
+                        deger !== "" &&
+                        !isNaN(Number(deger))
+                    );
+
+                })
+                .map(Number);
+
+        }
+
+
+        // =====================================================
+        // ORTALAMA
+        // =====================================================
+
+        function ortalamaHesapla(liste) {
+
+            const sayilar =
+                gecerliSayilar(liste);
+
+
+            if (sayilar.length === 0) {
+                return null;
+            }
+
+
+            const toplam =
+                sayilar.reduce(
+                    function (toplam, deger) {
+
+                        return toplam + deger;
+
+                    },
+                    0
+                );
+
+
+            return toplam / sayilar.length;
+
+        }
+
+
+        // =====================================================
+        // MİN / MAX
+        // =====================================================
+
+        function minHesapla(liste) {
+
+            const sayilar =
+                gecerliSayilar(liste);
+
+            return sayilar.length > 0
+                ? Math.min(...sayilar)
+                : null;
+
+        }
+
+
+        function maxHesapla(liste) {
+
+            const sayilar =
+                gecerliSayilar(liste);
+
+            return sayilar.length > 0
+                ? Math.max(...sayilar)
+                : null;
+
+        }
+
+
+        // =====================================================
+        // FORMAT
+        // =====================================================
+
+        function degerFormatla(
+            deger,
+            birim
+        ) {
+
+            if (
+                deger === null ||
+                deger === undefined ||
+                isNaN(Number(deger))
+            ) {
+
+                return "--";
+
+            }
+
+
+            return (
+                Number(deger).toFixed(1)
+                +
+                " "
+                +
+                birim
+            );
+
+        }
+
+
+        // =====================================================
+        // DEĞİŞİM BİLGİSİ
+        // =====================================================
+
+        function trendHesapla(
+            liste,
+            alanId,
+            sensorAdi,
+            birim
+        ) {
+
+            const alan =
+                document.getElementById(
+                    alanId
+                );
+
+
+            const sayilar =
+                gecerliSayilar(liste);
+
+
+            if (sayilar.length < 2) {
+
+                alan.className =
+                    "alert alert-secondary";
+
+
+                alan.innerText =
+                    sensorAdi +
+                    " değişimini göstermek için yeterli veri yok.";
+
+
+                return;
+
+            }
+
+
+            const ilk =
+                sayilar[0];
+
+
+            const son =
+                sayilar[
+                    sayilar.length - 1
+                ];
+
+
+            const fark =
+                son - ilk;
+
+
+            if (Math.abs(fark) < 0.5) {
+
+                alan.className =
+                    "alert alert-secondary";
+
+
+                alan.innerText =
+                    "➡️ " +
+                    sensorAdi +
+                    " değeri genel olarak sabit seyrediyor.";
+
+            }
+
+            else if (fark > 0) {
+
+                alan.className =
+                    "alert alert-warning";
+
+
+                alan.innerText =
+                    "📈 " +
+                    sensorAdi +
+                    " değeri yükseliyor. Değişim: +" +
+                    fark.toFixed(1) +
+                    " " +
+                    birim;
+
+            }
+
+            else {
+
+                alan.className =
+                    "alert alert-info";
+
+
+                alan.innerText =
+                    "📉 " +
+                    sensorAdi +
+                    " değeri düşüyor. Değişim: " +
+                    fark.toFixed(1) +
+                    " " +
+                    birim;
+
+            }
+
+        }
+
+
+        // =====================================================
+        // İSTATİSTİKLER
+        // =====================================================
+
+        function istatistikleriGuncelle(veriler) {
+
+            if (
+                !veriler ||
+                veriler.length === 0
+            ) {
+
+                document.getElementById(
+                    "toplamVeriSayisi"
+                ).innerText =
+                    "0";
+
+                return;
+
+            }
+
+
+            const sicakliklar =
+                veriler.map(
+                    x => x.ortamSicakligi
+                );
+
+
+            const ortamNemleri =
+                veriler.map(
+                    x => x.ortamNemi
+                );
+
+
+            const toprakNemleri =
+                veriler.map(
+                    x => x.toprakNemi
+                );
+
+
+            const sonVeri =
+                veriler[
+                    veriler.length - 1
+                ];
+
+
+            document.getElementById(
+                "toplamVeriSayisi"
+            ).innerText =
+                veriler.length;
+
+
+            document.getElementById(
+                "sonGuncelleme"
+            ).innerText =
+
+                sonVeri.kayitZamani
+
+                    ? new Date(
+                        sonVeri.kayitZamani
+                    ).toLocaleString(
+                        "tr-TR"
+                    )
+
+                    : "--";
+
+
+            document.getElementById(
+                "genelMaxSicaklik"
+            ).innerText =
+                degerFormatla(
+                    maxHesapla(sicakliklar),
+                    "°C"
+                );
+
+
+            document.getElementById(
+                "genelMinToprakNem"
+            ).innerText =
+                degerFormatla(
+                    minHesapla(toprakNemleri),
+                    "%"
+                );
+
+
+            // SICAKLIK
+
+            document.getElementById(
+                "sicaklikAnlik"
+            ).innerText =
+                degerFormatla(
+                    sonVeri.ortamSicakligi,
+                    "°C"
+                );
+
+
+            document.getElementById(
+                "sicaklikMin"
+            ).innerText =
+                degerFormatla(
+                    minHesapla(sicakliklar),
+                    "°C"
+                );
+
+
+            document.getElementById(
+                "sicaklikMax"
+            ).innerText =
+                degerFormatla(
+                    maxHesapla(sicakliklar),
+                    "°C"
+                );
+
+
+            document.getElementById(
+                "sicaklikOrtalama"
+            ).innerText =
+                degerFormatla(
+                    ortalamaHesapla(sicakliklar),
+                    "°C"
+                );
+
+
+            // ORTAM NEM
+
+            document.getElementById(
+                "ortamNemAnlik"
+            ).innerText =
+                degerFormatla(
+                    sonVeri.ortamNemi,
+                    "%"
+                );
+
+
+            document.getElementById(
+                "ortamNemMin"
+            ).innerText =
+                degerFormatla(
+                    minHesapla(ortamNemleri),
+                    "%"
+                );
+
+
+            document.getElementById(
+                "ortamNemMax"
+            ).innerText =
+                degerFormatla(
+                    maxHesapla(ortamNemleri),
+                    "%"
+                );
+
+
+            document.getElementById(
+                "ortamNemOrtalama"
+            ).innerText =
+                degerFormatla(
+                    ortalamaHesapla(ortamNemleri),
+                    "%"
+                );
+
+
+            // TOPRAK NEM
+
+            document.getElementById(
+                "toprakNemAnlik"
+            ).innerText =
+                degerFormatla(
+                    sonVeri.toprakNemi,
+                    "%"
+                );
+
+
+            document.getElementById(
+                "toprakNemMin"
+            ).innerText =
+                degerFormatla(
+                    minHesapla(toprakNemleri),
+                    "%"
+                );
+
+
+            document.getElementById(
+                "toprakNemMax"
+            ).innerText =
+                degerFormatla(
+                    maxHesapla(toprakNemleri),
+                    "%"
+                );
+
+
+            document.getElementById(
+                "toprakNemOrtalama"
+            ).innerText =
+                degerFormatla(
+                    ortalamaHesapla(toprakNemleri),
+                    "%"
+                );
+
+
+            trendHesapla(
+                sicakliklar,
+                "sicaklikTrend",
+                "Sıcaklık",
+                "°C"
+            );
+
+
+            trendHesapla(
+                ortamNemleri,
+                "ortamNemTrend",
+                "Ortam nemi",
+                "%"
+            );
+
+
+            trendHesapla(
+                toprakNemleri,
+                "toprakNemTrend",
+                "Toprak nemi",
+                "%"
+            );
+
+        }
+
+
+        // =====================================================
+        // SAATLER
+        // =====================================================
+
+        function saatleriOlustur(veriler) {
+
+            return veriler.map(
+                function (veri) {
+
+                    if (!veri.kayitZamani) {
+                        return "-";
+                    }
+
+
+                    const tarih =
+                        new Date(
+                            veri.kayitZamani
+                        );
+
+
+                    if (
+                        isNaN(
+                            tarih.getTime()
+                        )
+                    ) {
+
+                        return "-";
+
+                    }
+
+
+                    return tarih.toLocaleTimeString(
+                        "tr-TR",
+                        {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+        // =====================================================
+        // TEK GRAFİK
+        // =====================================================
+
+        function grafikOlustur(
+            canvasId,
+            etiket,
+            labels,
+            data,
+            min,
+            max
+        ) {
+
+            return new Chart(
+                document.getElementById(
+                    canvasId
+                ),
+                {
+                    type: "line",
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [
+                            {
+                                label: etiket,
+                                data: data,
+                                borderWidth: 3,
+                                tension: 0.3,
+                                fill: false
+                            }
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        interaction: {
+                            mode: "index",
+                            intersect: false
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                title: {
+                                    display: true,
+                                    text: "Saat"
+                                }
+
+                            },
+
+                            y: {
+
+                                min:
+                                    min ?? undefined,
+
+                                max:
+                                    max ?? undefined
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        // =====================================================
+        // GRAFİKLERİ ÇİZ
+        // =====================================================
+
+        function grafikleriCiz(veriler) {
+
+            const saatler =
+                saatleriOlustur(
+                    veriler
+                );
+
+
+            const sicakliklar =
+                veriler.map(
+                    x => x.ortamSicakligi
+                );
+
+
+            const ortamNemleri =
+                veriler.map(
+                    x => x.ortamNemi
+                );
+
+
+            const toprakNemleri =
+                veriler.map(
+                    x => x.toprakNemi
+                );
+
+
+            if (genelGrafik) {
+                genelGrafik.destroy();
+            }
+
+            if (sicaklikGrafik) {
+                sicaklikGrafik.destroy();
+            }
+
+            if (ortamNemGrafik) {
+                ortamNemGrafik.destroy();
+            }
+
+            if (toprakNemGrafik) {
+                toprakNemGrafik.destroy();
+            }
+
+
+            genelGrafik =
+                new Chart(
+                    document.getElementById(
+                        "genelGrafik"
+                    ),
+                    {
+                        type: "line",
+
+                        data: {
+
+                            labels:
+                                saatler,
+
+                            datasets: [
+
+                                {
+                                    label:
+                                        "Sıcaklık (°C)",
+
+                                    data:
+                                        sicakliklar,
+
+                                    borderWidth:
+                                        2,
+
+                                    tension:
+                                        0.3
+                                },
+
+                                {
+                                    label:
+                                        "Ortam Nemi (%)",
+
+                                    data:
+                                        ortamNemleri,
+
+                                    borderWidth:
+                                        2,
+
+                                    tension:
+                                        0.3
+                                },
+
+                                {
+                                    label:
+                                        "Toprak Nemi (%)",
+
+                                    data:
+                                        toprakNemleri,
+
+                                    borderWidth:
+                                        2,
+
+                                    tension:
+                                        0.3
+                                }
+
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+                            interaction: {
+                                mode: "index",
+                                intersect: false
+                            }
+
+                        }
+
+                    }
+                );
+
+
+            sicaklikGrafik =
+                grafikOlustur(
+                    "sicaklikGrafigi",
+                    "Sıcaklık (°C)",
+                    saatler,
+                    sicakliklar,
+                    null,
+                    null
+                );
+
+
+            ortamNemGrafik =
+                grafikOlustur(
+                    "ortamNemGrafigi",
+                    "Ortam Nemi (%)",
+                    saatler,
+                    ortamNemleri,
+                    0,
+                    100
+                );
+
+
+            toprakNemGrafik =
+                grafikOlustur(
+                    "toprakNemGrafigi",
+                    "Toprak Nemi (%)",
+                    saatler,
+                    toprakNemleri,
+                    0,
+                    100
+                );
+
+        }
+
+
+        // =====================================================
+        // EKRANI GÜNCELLE
+        // =====================================================
+
+        function ekraniGuncelle() {
+
+            const gosterilecek =
+                tumSensorVerileri.slice(
+                    -aktifLimit
+                );
+
+
+            istatistikleriGuncelle(
+                gosterilecek
+            );
+
+
+            grafikleriCiz(
+                gosterilecek
+            );
+
+        }
+
+
+        // =====================================================
+        // FİLTRE
+        // =====================================================
+
+        function filtreUygula(
+            limit,
+            buton
+        ) {
+
+            aktifLimit =
+                limit;
+
+
+            document
+                .querySelectorAll(
+                    ".grafik-filtre"
+                )
+                .forEach(
+                    function (btn) {
+
+                        btn.className =
+                            "btn btn-outline-primary grafik-filtre";
+
+                    }
+                );
+
+
+            buton.className =
+                "btn btn-primary grafik-filtre";
+
+
+            ekraniGuncelle();
+
+        }
+
+
+        // =====================================================
+        // API'DEN SENSÖR GEÇMİŞİ
+        // =====================================================
+
+        async function sensorVerileriniGetir() {
+
+            const bildirim =
+                document.getElementById(
+                    "grafikBildirim"
+                );
+
+
+            bildirim.className =
+                "alert alert-info";
+
+
+            bildirim.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i>' +
+                'Grafik verileri yükleniyor...';
+
+
+            try {
+
+                const veriler =
+                    await apiGet(
+                        "/api/Sensors/history?limit=50"
+                    );
+
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    bildirim.className =
+                        "alert alert-warning";
+
+
+                    bildirim.innerText =
+                        "API bağlantısı var fakat henüz grafik verisi bulunmuyor.";
+
+
+                    tumSensorVerileri =
+                        [];
+
+
+                    return;
+
+                }
+
+
+                // Backend sıralamasını varsaymıyoruz.
+
+                tumSensorVerileri =
+                    [...veriler].sort(
+                        function (a, b) {
+
+                            return (
+                                new Date(
+                                    a.kayitZamani
+                                ).getTime()
+                                -
+                                new Date(
+                                    b.kayitZamani
+                                ).getTime()
+                            );
+
+                        }
+                    );
+
+
+                ekraniGuncelle();
+
+
+                bildirim.className =
+                    "alert alert-success";
+
+
+                bildirim.innerText =
+                    "Grafik verileri başarıyla yüklendi.";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Grafik API hatası:",
+                    error
+                );
+
+
+                bildirim.className =
+                    "alert alert-danger";
+
+
+                bildirim.innerText =
+                    "Grafik verileri alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+            }
+
+        }
+
+
+        // =====================================================
+        // SIGNALR
+        // =====================================================
+
+        const seraConnection =
+            new signalR.HubConnectionBuilder()
+
+                .withUrl(
+                    `${API_BASE_URL}/serahub`
+                )
+
+                .withAutomaticReconnect()
+
+                .build();
+
+
+        seraConnection.on(
+            "ReceiveTelemetry",
+            function (veri) {
+
+                const yeniKayit = {
+
+                    ortamSicakligi:
+                        veri.temperature,
+
+                    ortamNemi:
+                        veri.humidity,
+
+                    toprakNemi:
+                        veri.soilMoisture,
+
+                    kayitZamani:
+                        veri.recordedAt
+
+                };
+
+
+                tumSensorVerileri.push(
+                    yeniKayit
+                );
+
+
+                if (
+                    tumSensorVerileri.length > 50
+                ) {
+
+                    tumSensorVerileri.shift();
+
+                }
+
+
+                ekraniGuncelle();
+
+
+                const bildirim =
+                    document.getElementById(
+                        "grafikBildirim"
+                    );
+
+
+                bildirim.className =
+                    "alert alert-success";
+
+
+                bildirim.innerText =
+                    "🟢 Canlı grafik verileri alınıyor.";
+
+            }
+        );
+
+
+        seraConnection.onreconnecting(
+            function () {
+
+                const bildirim =
+                    document.getElementById(
+                        "grafikBildirim"
+                    );
+
+
+                bildirim.className =
+                    "alert alert-warning";
+
+
+                bildirim.innerText =
+                    "Canlı bağlantı yeniden kuruluyor...";
+
+            }
+        );
+
+
+        seraConnection.onreconnected(
+            function () {
+
+                const bildirim =
+                    document.getElementById(
+                        "grafikBildirim"
+                    );
+
+
+                bildirim.className =
+                    "alert alert-success";
+
+
+                bildirim.innerText =
+                    "Canlı bağlantı yeniden kuruldu.";
+
+            }
+        );
+
+
+        seraConnection.onclose(
+            function () {
+
+                const bildirim =
+                    document.getElementById(
+                        "grafikBildirim"
+                    );
+
+
+                bildirim.className =
+                    "alert alert-danger";
+
+
+                bildirim.innerText =
+                    "Canlı grafik bağlantısı kesildi.";
+
+            }
+        );
+
+
+        async function signalRBaslat() {
+
+            try {
+
+                await seraConnection.start();
+
+
+                document.getElementById(
+                    "grafikBildirim"
+                ).className =
+                    "alert alert-success";
+
+
+                document.getElementById(
+                    "grafikBildirim"
+                ).innerText =
+                    "Grafikler hazır. Canlı bağlantı aktif.";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "SignalR bağlantı hatası:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "grafikBildirim"
+                ).className =
+                    "alert alert-warning";
+
+
+                document.getElementById(
+                    "grafikBildirim"
+                ).innerText =
+                    "Geçmiş grafik verileri gösteriliyor ancak canlı bağlantı kurulamadı.";
+
+            }
+
+        }
+
+
+        // =====================================================
+        // BAŞLAT
+        // =====================================================
+
+        async function sayfayiBaslat() {
+
+            await sensorVerileriniGetir();
+
+            await signalRBaslat();
+
+        }
+
+
+        sayfayiBaslat();
+
+    </script>
+
+}

@@ -1,0 +1,532 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Hastalık Durumu";
+}
+
+<div class="content-header mb-4">
+
+    <h1>🌿 Hastalık Durumu</h1>
+
+    <p class="text-muted">
+        Bitkilerde tespit edilen hastalık bilgileri
+    </p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- HASTALIK TABLOSU -->
+<!-- ====================================================== -->
+
+<div class="card">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <h3 class="card-title">
+            🔬 Hastalık Tespitleri
+        </h3>
+
+        <button type="button"
+                id="yenileBtn"
+                class="btn btn-sm btn-primary ms-auto"
+                onclick="hastaliklariGetir()">
+
+            <i class="fas fa-rotate"></i>
+            Yenile
+
+        </button>
+
+    </div>
+
+
+    <div class="card-body">
+
+
+        <!-- YÜKLENİYOR -->
+        <div id="hastalikYukleniyor"
+             class="alert alert-info">
+
+            <i class="fas fa-spinner fa-spin me-2"></i>
+            Hastalık verileri yükleniyor...
+
+        </div>
+
+
+        <!-- HATA -->
+        <div id="hastalikHata"
+             class="alert alert-danger d-none">
+        </div>
+
+
+        <!-- BOŞ VERİ -->
+        <div id="hastalikBos"
+             class="alert alert-success d-none">
+
+            Hastalık kaydı bulunmuyor.
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Hastalık ID</th>
+
+                        <th>Bitki / Sera ID</th>
+
+                        <th>Hastalık Adı</th>
+
+                        <th>Hastalık Oranı</th>
+
+                        <th>Fotoğraf</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="hastalikTablosu">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+        // =====================================================
+        // FOTOĞRAF ADRESİNİ HAZIRLA
+        // =====================================================
+
+        function fotografAdresiOlustur(fotografYolu) {
+
+            if (!fotografYolu) {
+                return null;
+            }
+
+
+            // Backend zaten tam URL döndürüyorsa olduğu gibi kullan
+
+            if (
+                fotografYolu.startsWith("http://") ||
+                fotografYolu.startsWith("https://")
+            ) {
+
+                return fotografYolu;
+
+            }
+
+
+            // Backend relative yol döndürüyorsa API adresine ekle
+
+            if (
+                fotografYolu.startsWith("/")
+            ) {
+
+                return API_BASE_URL + fotografYolu;
+
+            }
+
+
+            return API_BASE_URL + "/" + fotografYolu;
+
+        }
+
+
+
+        // =====================================================
+        // HASTALIKLARI GETİR
+        // =====================================================
+
+        async function hastaliklariGetir() {
+
+            const tablo =
+                document.getElementById(
+                    "hastalikTablosu"
+                );
+
+
+            const loading =
+                document.getElementById(
+                    "hastalikYukleniyor"
+                );
+
+
+            const hataAlani =
+                document.getElementById(
+                    "hastalikHata"
+                );
+
+
+            const bosAlani =
+                document.getElementById(
+                    "hastalikBos"
+                );
+
+
+            const yenileBtn =
+                document.getElementById(
+                    "yenileBtn"
+                );
+
+
+            // -----------------------------------------
+            // BAŞLANGIÇ DURUMU
+            // -----------------------------------------
+
+            loading.classList.remove(
+                "d-none"
+            );
+
+
+            hataAlani.classList.add(
+                "d-none"
+            );
+
+
+            bosAlani.classList.add(
+                "d-none"
+            );
+
+
+            tablo.innerHTML =
+                "";
+
+
+            yenileBtn.disabled =
+                true;
+
+
+
+            try {
+
+                // -----------------------------------------
+                // API
+                // -----------------------------------------
+
+                const veriler =
+                    await apiGet(
+                        "/api/Hastalik/liste"
+                    );
+
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                // -----------------------------------------
+                // BOŞ VERİ
+                // -----------------------------------------
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    bosAlani.classList.remove(
+                        "d-none"
+                    );
+
+
+                    tablo.innerHTML = `
+
+                        <tr>
+
+                            <td colspan="5"
+                                class="text-center text-muted">
+
+                                Hastalık kaydı bulunamadı.
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+
+                    return;
+
+                }
+
+
+
+                // -----------------------------------------
+                // TABLOYU OLUŞTUR
+                // -----------------------------------------
+
+                veriler.forEach(
+                    function (veri) {
+
+                        const satir =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+
+                        // =================================
+                        // HASTALIK ID
+                        // =================================
+
+                        const tdId =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        tdId.innerText =
+                            veri.hastalikId ??
+                            "--";
+
+
+
+                        // =================================
+                        // BİTKİ ID
+                        // =================================
+
+                        const tdBitki =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        tdBitki.innerText =
+                            veri.bitkiId ??
+                            "--";
+
+
+
+                        // =================================
+                        // HASTALIK ADI
+                        // =================================
+
+                        const tdHastalik =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        tdHastalik.innerText =
+                            veri.hastalikAdi ??
+                            "Bilinmiyor";
+
+
+
+                        // =================================
+                        // HASTALIK ORANI
+                        // =================================
+
+                        const tdOran =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        if (
+                            veri.hastalikOrani !== null &&
+                            veri.hastalikOrani !== undefined
+                        ) {
+
+                            tdOran.innerText =
+                                veri.hastalikOrani +
+                                " %";
+
+                        }
+                        else {
+
+                            tdOran.innerText =
+                                "--";
+
+                        }
+
+
+
+                        // =================================
+                        // FOTOĞRAF
+                        // =================================
+
+                        const tdFoto =
+                            document.createElement(
+                                "td"
+                            );
+
+
+                        const fotografAdresi =
+                            fotografAdresiOlustur(
+                                veri.fotografYolu
+                            );
+
+
+                        if (fotografAdresi) {
+
+                            const img =
+                                document.createElement(
+                                    "img"
+                                );
+
+
+                            img.src =
+                                fotografAdresi;
+
+
+                            img.alt =
+                                "Hastalık fotoğrafı";
+
+
+                            img.style.width =
+                                "90px";
+
+
+                            img.style.height =
+                                "90px";
+
+
+                            img.style.objectFit =
+                                "cover";
+
+
+                            img.className =
+                                "rounded border";
+
+
+                            // Fotoğraf yüklenemezse
+
+                            img.onerror =
+                                function () {
+
+                                    tdFoto.innerHTML =
+                                        '<span class="text-danger">Fotoğraf yüklenemedi</span>';
+
+                                };
+
+
+                            tdFoto.appendChild(
+                                img
+                            );
+
+                        }
+                        else {
+
+                            tdFoto.innerText =
+                                "Fotoğraf yok";
+
+                        }
+
+
+
+                        // =================================
+                        // SATIRA EKLE
+                        // =================================
+
+                        satir.appendChild(
+                            tdId
+                        );
+
+
+                        satir.appendChild(
+                            tdBitki
+                        );
+
+
+                        satir.appendChild(
+                            tdHastalik
+                        );
+
+
+                        satir.appendChild(
+                            tdOran
+                        );
+
+
+                        satir.appendChild(
+                            tdFoto
+                        );
+
+
+                        tablo.appendChild(
+                            satir
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Hastalık API hatası:",
+                    error
+                );
+
+
+                loading.classList.add(
+                    "d-none"
+                );
+
+
+                hataAlani.classList.remove(
+                    "d-none"
+                );
+
+
+                hataAlani.innerText =
+                    "Hastalık verileri alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+
+                tablo.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="5"
+                            class="text-center text-danger">
+
+                            Hastalık verileri görüntülenemedi.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+            finally {
+
+                yenileBtn.disabled =
+                    false;
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // SAYFA AÇILDIĞINDA
+        // =====================================================
+
+        hastaliklariGetir();
+
+    </script>
+
+}
