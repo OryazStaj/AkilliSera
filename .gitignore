@@ -1,0 +1,74 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET build and tooling output
+[Bb]in/
+[Oo]bj/
+TestResults/
+*.nupkg
+*.snupkg
+*.log
+
+# JavaScript package managers and build output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+coverage/
+
+# Python virtual environments, caches, and test output
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ESP32 / PlatformIO build output
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+
+# Machine-learning models and generated datasets
+*.onnx
+*.pt
+*.pth
+*.h5
+*.keras
+*.tflite
+*.pkl
+data/
+datasets/
+models/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~

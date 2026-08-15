@@ -7,8 +7,8 @@ Bu belge; frontend, backend, ESP32, yapay zekâ ve veritabanı ekiplerinin aynı
 | Alan | Durum | Gerekli ilk iş |
 |---|---|---|
 | Veritabanı | SQL şeması mevcut | Dosyaları doğru bağımlılık sırasıyla çalıştırmak ve bağlantıyı doğrulamak |
-| Backend | Yeni telemetri/SignalR dosyaları eklendi ancak namespace uyuşmazlığı nedeniyle derlenmiyor | Namespace'leri eşitlemek, yapılandırmayı tamamlamak ve veri sözleşmelerini birleştirmek |
-| Frontend | Uygulama kodu henüz yok | API istemcisi ve ekran–endpoint eşleşmesini kurmak |
+| Backend | Telemetri/SignalR dosyaları mevcut; `dotnet build` namespace uyuşmazlığı nedeniyle başarısız | `AkıllıSera.API.*` namespace'lerini `AkilliSera_API.*` ile eşitlemek, sonra yapılandırmayı tamamlamak |
+| Frontend | Razor Pages uygulaması ve API/SignalR istemcisi mevcut; `dotnet build` başarılı | Backend ayağa kalkınca canlı API, SignalR ve hata senaryolarını uçtan uca doğrulamak |
 | ESP32 | Uygulama kodu henüz yok | Wi-Fi, API çağrısı ve sensör JSON sözleşmesini uygulamak |
 | Yapay zekâ | Görüntü analizi JSON sözleşmesi tamamlandı ve örnek model testi geçti | Backend'in görüntü analizi endpoint/DTO'sunu yayınlamasını beklemek |
 
@@ -26,7 +26,7 @@ Bu belge; frontend, backend, ESP32, yapay zekâ ve veritabanı ekiplerinin aynı
 3. Backend yapılandırmasına bağlantı metnini ekleyin; gerçek parola/bağlantı bilgilerini Git'e göndermeyin.
 4. `2_Backend_CSharp` altında `dotnet build` ve ardından `dotnet run` çalıştırın.
 5. Swagger üzerinden API'nin açıldığını ve veritabanına erişebildiğini kontrol edin.
-6. Frontend ve ESP32 yalnızca aşağıda tanımlanan endpoint ve JSON alan adlarını kullanarak bağlanmalıdır.
+6. Frontend ve ESP32 yalnızca aşağıda tanımlanan endpoint ve JSON alan adlarını kullanarak bağlanmalıdır. Frontend şu an `https://localhost:7266` adresini kullanacak şekilde yapılandırılmıştır.
 7. Görüntü işleme çıktısını örnek bir görselle üretin; backend görüntü analizi endpoint'i hazır olduğunda aynı JSON'u uçtan uca gönderin.
 
 ## 3. Ortak kurallar
@@ -81,18 +81,20 @@ Yeni `TelemetryController.cs`, `SeraHub.cs` ve `HealthCheckService.cs` dosyalar�
 
 ### Mevcut API sözleşmesi
 
-| Amaç | Metot ve endpoint | İstek gövdesi / not |
-|---|---|---|
-| Sensör geçmişi | `GET /api/Sensors/history?limit=50` | En yeni kayıtlar önce dönecek şekilde sıralanmalı |
-| Sensör kaydı | `POST /api/Sensors/save` | Aşağıdaki sensör JSON'u |
-| Kullanıcı listesi | `GET /api/Kullanici/liste` | Şifre alanı asla dönmemeli |
-| Kayıt ol | `POST /api/Kullanici/kayit-ol` | Kullanıcı JSON'u |
-| Giriş | `POST /api/Kullanici/giris-yap` | `{ "eposta": "...", "sifre": "..." }` |
-| Bitki evreleri | `GET /api/BitkiEvre/liste` | |
-| Hastalıklar | `GET /api/Hastalik/liste` | |
-| İlaçlama geçmişi | `GET /api/Ilaclama/gecmis` | |
-| İlaçlama kaydı | `POST /api/Ilaclama/ekle` | İlaçlama JSON'u |
-| Bildirimler | `GET /api/Bildirim/liste` | |
+| Amaç | Metot ve endpoint | İstek gövdesi / not | Frontend kullanımı |
+|---|---|---|---|
+| Sensör geçmişi | `GET /api/Sensors/history?limit=50` | En yeni kayıtlar önce dönecek şekilde sıralanmalı | Ana sayfa, sensörler ve grafikler |
+| Sensör kaydı | `POST /api/Sensors/save` | Aşağıdaki sensör JSON'u | ESP32/test istemcisi için; frontend çağırmıyor |
+| Kullanıcı listesi | `GET /api/Kullanici/liste` | Şifre alanı asla dönmemeli | Ekranda çağrı tespit edilmedi |
+| Kayıt ol | `POST /api/Kullanici/kayit-ol` | Kullanıcı JSON'u | Giriş/kayıt ekranı |
+| Giriş | `POST /api/Kullanici/giris-yap` | `{ "eposta": "...", "sifre": "..." }` | Giriş ekranı |
+| Bitki evreleri | `GET /api/BitkiEvre/liste` | | Bitki evreleri ekranı |
+| Hastalıklar | `GET /api/Hastalik/liste` | | Ana sayfa ve hastalıklar ekranı |
+| İlaçlama geçmişi | `GET /api/Ilaclama/gecmis` | | Ana sayfa, sensörler ve ilaçlama ekranı |
+| İlaçlama kaydı | `POST /api/Ilaclama/ekle` | İlaçlama JSON'u | İlaçlama ekranı |
+| Bildirimler | `GET /api/Bildirim/liste` | | Ana sayfa |
+| Cihaz canlılığı | `GET /api/Telemetry/health` | `isOnline`, `lastSeen` döner | Ana sayfa, sensörler ve kontrol ekranı |
+| Canlı telemetri | SignalR `/serahub`, `ReceiveTelemetry` | `sectionId`, `temperature`, `humidity`, `soilMoisture`, `recordedAt` | Ana sayfa, sensörler ve grafikler |
 
 Sensör kaydı örneği:
 
@@ -189,8 +191,12 @@ AI görüntü işleme çıktısı hazırdır; ancak backend bu sonucu alan bir e
 
 ## 7. Frontend ekibi kontrol listesi
 
-- [ ] Tek bir yapılandırılabilir API base URL kullanın; endpoint adreslerini bileşenlere dağınık yazmayın.
-- [ ] Ekranları yukarıdaki mevcut API sözleşmesine göre bağlayın; sözleşmede olmayan endpoint'i varsaymayın.
+- [x] Ortak `wwwroot/js/api.js` istemcisi, GET/POST hata kontrolüyle birlikte kullanılıyor.
+- [x] Aşağıdaki ekranlar mevcut endpointlere bağlandı: ana sayfa (`Sensors/history`, `Telemetry/health`, ilaçlama, hastalık, bildirim), sensörler, grafikler, bitki evreleri, hastalıklar, ilaçlama ve giriş/kayıt.
+- [x] Ana sayfa, sensörler ve grafikler `https://localhost:7266/serahub` üzerinden `ReceiveTelemetry` olayını dinliyor; otomatik yeniden bağlanma etkin.
+- [ ] `API_BASE_URL` şu an `api.js` içinde sabit `https://localhost:7266` değeridir. Geliştirme/üretim için yapılandırılabilir hâle getirin; bağlantı adresi değiştiğinde bu dosyayı güncelleyin.
+- [ ] SignalR canlı iletisi `sectionId`, `temperature`, `humidity`, `soilMoisture`, `recordedAt` alanlarını kullanıyor. Kalıcı sensör geçmişi ise `seraId`, `ortamSicakligi`, `ortamNemi`, `toprakNemi` alanlarını kullanıyor. Backend tek sözleşmeyi seçene kadar bu dönüşümün bilinçli ve test edilmiş olduğunu doğrulayın.
+- [ ] Frontend `dotnet build` başarılıdır; backend derlenmeden canlı endpoint/SignalR testi yapılamaz.
 - [ ] Yükleniyor, boş veri ve hata durumlarını her liste/grafik ekranında gösterin.
 - [ ] Sensör geçmişini zaman sırasına göre grafikte gösterin; backend sıralamasını istemci tarafında körü körüne varsaymayın.
 - [ ] Başarılı kayıt sonrası API yanıtını ve hata mesajlarını kullanıcıya uygun biçimde gösterin.
@@ -215,9 +221,10 @@ Bu senaryo geçmeden proje "entegre" kabul edilmemelidir:
 2. ESP32 veya test istemcisi bir sensör ölçümünü `POST /api/Sensors/save` ile gönderir.
 3. Backend kaydı veritabanına yazar ve hata durumunda başarısız yanıt döner.
 4. `GET /api/Sensors/history?limit=1` son kaydı döndürür.
-5. Frontend bu kaydı kart ve/veya grafikte gösterir.
-6. Yapay zekâ analizi, `seraId` ile geçerli JSON üretir; backend endpoint'i hazır olduğunda aynı sonuç üzerinde anlaşılmış endpoint'e gönderilir ve hastalık/bildirim kaydı oluşur.
-7. Gerekli ilaçlama kaydı eklenir ve frontend geçmişte görünür.
+5. Frontend `https://localhost:7214` adresinde açılır; `https://localhost:7266` API'sine bağlanarak son kaydı ana sayfa, sensörler ve grafik ekranında gösterir.
+6. `POST /api/Telemetry` sonrası frontend açıkken `ReceiveTelemetry` olayı gelir; kartlar/grafik yenilenmeden güncellenir ve `GET /api/Telemetry/health` cihazı çevrimiçi gösterir.
+7. Giriş/kayıt ve ilaçlama ekranları sırasıyla ilgili POST endpointlerinden başarılı veya anlaşılır hata yanıtı alır; eklenen ilaçlama kaydı geçmişte görünür.
+8. Yapay zekâ analizi, `seraId` ile geçerli JSON üretir; backend endpoint'i hazır olduğunda aynı sonuç üzerinde anlaşılmış endpoint'e gönderilir ve hastalık/bildirim kaydı oluşur.
 
 ## 10. Teslimden önce ortak kontrol
 

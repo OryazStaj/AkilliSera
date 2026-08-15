@@ -4,6 +4,14 @@ node_modules/
 dist/
 .env
 
+# ASP.NET Core / Razor build outputs and caches
+bin/
+obj/
+.vs/
+TestResults/
+*.nupkg
+*.snupkg
+
 # Derleme çıktıları, framework önbellekleri ve günlükler
 build/
 out/
