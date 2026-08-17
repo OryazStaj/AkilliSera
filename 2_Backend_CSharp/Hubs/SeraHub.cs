@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace AkıllıSera.API.Hubs;
-
+namespace AkilliSera_API.Hubs;
 /// <summary>
 /// ESP32'den gelen anlık telemetri verilerini Frontend (web/mobil) istemcilerine
 /// canlı olarak yayınlayan SignalR iletişim kanalı (Hub) sınıfı.
