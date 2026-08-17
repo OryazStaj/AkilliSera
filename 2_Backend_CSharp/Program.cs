@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // ==========================================
 // Frontend uygulamasının adresleri (Geliştirme ve Üretim portları)
 var allowedOrigins = new[] { "https://localhost:7214", "http://localhost:5108" };
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -42,6 +41,9 @@ builder.Services.AddDbContext<AkilliSeraDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DataBaseService>();
+
+// 👉 SENİN EKLEDİĞİN BULANIK MANTIK SERVİSİ KAYDI BURADA 👈
+builder.Services.AddHttpClient<AkilliSera_API.Services.FuzzyIntegrationService>();
 
 // ==========================================
 // 3. CANLI YAYIN VE TELEMETRİ SERVİSLERİ
