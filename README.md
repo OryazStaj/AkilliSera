@@ -30,3 +30,5 @@ Projeyi kendi bilgisayarınıza indirmek için bilgisayarınızda çalışmak is
 Tebrikler! Proje bilgisayarınıza indi. 
 
 🚨 **DİKKAT:** Hemen kod yazmaya başlamayın! Kodlarınızı nasıl ekleyeceğinizi öğrenmek için **ZORUNLU OKUMA:** [GIT_KURALLARI.md](GIT_KURALLARI.md) dosyasını inceleyin.
+
+Tum ekipler icin kurulum gereksinimleri ve tek komutla hazirlik adimlari: [EKIP_KURULUM_GEREKSINIMLERI.md](EKIP_KURULUM_GEREKSINIMLERI.md)

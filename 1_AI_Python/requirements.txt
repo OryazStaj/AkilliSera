@@ -1,0 +1,7 @@
+# Akilli Sera - Python AI dependencies
+# Install: pip install -r requirements.txt
+
+numpy
+scikit-fuzzy
+opencv-python
+ultralytics

@@ -7,7 +7,8 @@
 Python 3.11 önerilir. Gerekli paketler:
 
 ```powershell
-pip install ultralytics opencv-python
+cd ..
+pip install -r requirements.txt
 ```
 
 ## Çalıştırma
