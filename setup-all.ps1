@@ -1,33 +1,52 @@
-Write-Host "Akilli Sera setup basliyor..."
+$ErrorActionPreference = "Stop" # Herhangi bir adımda hata çıkarsa işlemi durdurur
 
+Write-Host "Akilli Sera setup basliyor..." -ForegroundColor Green
+
+# Çalıştırılan dosyanın bulunduğu kök dizine geçiş yap
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
 
 function Step($msg) {
-    Write-Host "`n=== $msg ==="
+    Write-Host "`n=== $msg ===" -ForegroundColor Cyan
 }
 
+# 1. AI Python Bağımlılıkları
 Step "AI dependencies"
-if (Test-Path "1_AI_Python/requirements.txt") {
-    python -m pip install -r "1_AI_Python/requirements.txt"
+$pythonReq = "1_AI_Python/requirements.txt"
+if (Test-Path $pythonReq) {
+    python -m pip install --upgrade pip
+    python -m pip install -r $pythonReq
 } else {
-    Write-Warning "1_AI_Python/requirements.txt bulunamadi, AI adimi atlandi."
+    Write-Warning "$pythonReq bulunamadi, AI adimi atlandi."
 }
 
+# 2. C# Backend
 Step "Backend restore/build"
-if (Test-Path "2_Backend_CSharp/AkilliSera_API.csproj") {
-    dotnet restore "2_Backend_CSharp/AkilliSera_API.csproj"
-    dotnet build "2_Backend_CSharp/AkilliSera_API.csproj"
+$backendProj = "2_Backend_CSharp/AkilliSera_API.csproj"
+if (Test-Path $backendProj) {
+    dotnet restore $backendProj
+    dotnet build $backendProj
 } else {
-    Write-Warning "Backend csproj bulunamadi, backend adimi atlandi."
+    Write-Warning "$backendProj bulunamadi, backend adimi atlandi."
 }
 
+# 3. C# Frontend Web
 Step "Frontend restore/build"
-if (Test-Path "4_Frontend_Web/SERASİSTEMİ.csproj") {
-    dotnet restore "4_Frontend_Web/SERASİSTEMİ.csproj"
-    dotnet build "4_Frontend_Web/SERASİSTEMİ.csproj"
+# Türkçe 'İ' harfi yerine 'I' kullanarak kontrol edin:
+$frontendProj = "4_Frontend_Web/SERASISTEMI.csproj" 
+
+if (Test-Path $frontendProj) {
+    dotnet restore $frontendProj
+    dotnet build $frontendProj
 } else {
-    Write-Warning "Frontend csproj bulunamadi, frontend adimi atlandi."
+    # Alternatif olarak klasördeki .csproj dosyasını dinamik aratabilirsiniz:
+    $autoProj = Get-ChildItem -Path "4_Frontend_Web" -Filter "*.csproj" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($autoProj) {
+        dotnet restore $autoProj.FullName
+        dotnet build $autoProj.FullName
+    } else {
+        Write-Warning "4_Frontend_Web klasorunde .csproj bulunamadi, frontend adimi atlandi."
+    }
 }
 
-Write-Host "`nKurulum adimlari tamamlandi."
+Write-Host "`nKurulum adimlari basariyla tamamlandi." -ForegroundColor Green
