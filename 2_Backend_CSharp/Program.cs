@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AkilliSera_API.Data;
 using AkilliSera_API.Services;
+using AkilliSera_API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -15,6 +16,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<AkilliSeraDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<DataBaseService>();
+builder.Services.AddSingleton<HealthCheckService>();
+builder.Services.AddHttpClient<FuzzyIntegrationService>();
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 
@@ -36,5 +40,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<SeraHub>("/serahub");
 
 app.Run();
+

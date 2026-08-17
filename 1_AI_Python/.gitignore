@@ -4,15 +4,22 @@ __pycache__/
 .venv/
 env/
 
-# DİKKAT: Yapay Zeka ağırlık dosyaları (modeller) çok büyüktür. 
-# GitHub'a gönderilmesi yasaktır! Bu yüzden aşağıdaki uzantılar engellendi:
-
+# Büyük / gereksiz model uzantıları
 *.weights
+*.pth
+*.h5
+*.keras
+*.pb
+*.tflite
+*.pkl
 
-#fotoğraf dosyalarını engelledim
-*.jpg
+# Geçici çalışma zamanı çıktıları (her çalıştırmada üzerine yazılanlar)
+Goruntu_Isleme/kamera_anlik.jpg
+Goruntu_Isleme/sonuc.jpg
+Goruntu_Isleme/yeni_test_sonucu.jpg
+Goruntu_Isleme/analiz-sonucu.json
 
-# Ek temel Python/ML dosyaları
+# Temel Python/IDE dosyaları
 *.log
 *.tmp
 *.temp
@@ -26,19 +33,15 @@ htmlcov/
 !.env.example
 .vscode/
 .idea/
-*.pt
-*.pth
-*.onnx
-*.h5
-*.keras
-*.pb
-*.tflite
-*.jpeg
-*.json
 .DS_Store
 Thumbs.db
 
-# Zorunlu model dosyalari (projede versiyonlanir)
+# Zorunlu model dosyaları (Projeyle birlikte versiyonlanır)
 !Goruntu_Isleme/model.onnx
 !Goruntu_Isleme/model_domates.onnx
 !Goruntu_Isleme/yolov8n-seg.pt
+
+# Test ve simülasyon örnek yaprak fotoğrafları
+!Goruntu_Isleme/test_yapragi.jpg
+!Goruntu_Isleme/images*.jpg
+!Goruntu_Isleme/images (*).jpg

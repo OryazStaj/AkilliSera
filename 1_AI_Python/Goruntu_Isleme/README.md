@@ -1,60 +1,81 @@
-# Görüntü İşleme
+# 📷 Görüntü İşleme & Kamera Servisi
 
-`analiz.py`, hastalık ve domates ONNX modellerini kullanarak bir görüntüyü analiz eder. Çıktı UTF-8 kodlu, geçerli JSON'dur ve backend'e gönderilecek sözleşmenin aday formatıdır.
+Bu modül; ONNX formatındaki yapay zeka modellerini kullanarak yaprak hastalıklarını, domates olgunluğunu ve bitki evresini (`Tohum`, `Filiz`, `Olgun`) tespit eder ve sonuçları doğrudan Backend API'sine (`POST /api/Analiz/goruntu-sonucu`) iletir.
 
-## Kurulum
+---
 
-Python 3.11 önerilir. Gerekli paketler:
+## 🛠️ Kurulum
 
 ```powershell
-cd ..
+cd 1_AI_Python
 pip install -r requirements.txt
 ```
 
-## Çalıştırma
+---
 
-Bu klasördeyken:
+## 🚀 Çalıştırma Yöntemleri
 
-```powershell
-python analiz.py "images (6).jpg" --sera-id 1 --cikti analiz-sonucu.json
-```
+### 1. Otomatik Kamera / Simülasyon Servisi (`kamera_servisi.py` - Önerilen)
 
-`--guven-esigi` parametresi `0–1` arasındadır; varsayılan değer `0.30`dur.
+Bu servis, anlık görüntüyü `kamera_anlik.jpg` dosyasına **üzerine yazarak (overwrite)** kaydeder, analiz eder ve sonucu Backend'e gönderir:
 
-## Çıktı sözleşmesi
+* **Tek Seferlik Simülasyon Testi:**
+  ```powershell
+  python kamera_servisi.py
+  ```
 
-Ana alanlar şunlardır:
+* **Sürekli Canlı Akış (Örn: Her 5 saniyede bir yeni kare işle & gönder):**
+  ```powershell
+  python kamera_servisi.py --dongu 5
+  ```
+
+* **Fiziksel USB Web Kameradan Çekim Yapmak:**
+  ```powershell
+  python kamera_servisi.py --kamera-id 0 --dongu 10
+  ```
+
+---
+
+### 2. Bağımsız Analiz Scripti (`analiz.py`)
+
+Spesifik bir görüntüyü analiz etmek veya çıktısını JSON dosyasına kaydetmek için:
+
+* **Ekrana JSON Basma:**
+  ```powershell
+  python analiz.py "test_yapragi.jpg"
+  ```
+
+* **Analiz Edip Doğrudan Backend'e Gönderme:**
+  ```powershell
+  python analiz.py "test_yapragi.jpg" --gonder
+  ```
+
+---
+
+## 📡 Backend Entegrasyon Sözleşmesi (`POST /api/Analiz/goruntu-sonucu`)
+
+Analiz sonucu Backend'e şu JSON formatında iletilir:
 
 ```json
 {
   "seraId": 1,
   "bitkiEvresi": "Olgun",
+  "yaprakTespitEdildiMi": true,
+  "domatesTespitEdildiMi": true,
   "hastalikDetaylari": [
-    { "hastalikAdi": "ornek_hastalik", "guvenSkoru": 87.5 }
+    { "hastalikAdi": "Erken Yaniklik", "guvenSkoru": 92.4 }
   ],
   "domatesDetaylari": [
-    { "durum": "ripe", "guvenSkoru": 91.2 }
+    { "durum": "Olgun", "guvenSkoru": 88.7 }
   ],
-  "fotografYolu": "C:\\...\\gorsel.jpg",
-  "analizZamani": "2026-08-15T12:00:00+00:00"
+  "fotografYolu": "kamera_anlik.jpg",
+  "analizZamani": "2026-08-17T19:00:00+00:00",
+  "guvenEsigi": 30.0,
+  "aciklama": "Bitkide domates tespit edildi."
 }
 ```
 
-`guvenSkoru` ve `guvenEsigi` yüzde formatındadır (`0–100`). `hastalikOrani` alanı veritabanında kullanılacaksa bu yüzde formatı backend ve veritabanı ekibi tarafından kabul edilmelidir.
-
-## Backend entegrasyon durumu
-
-Mevcut C# API'de görüntü analizi sonucu kabul eden endpoint bulunmuyor. `POST /api/Telemetry` sensör telemetrisi içindir; görüntü analizi sonucu bu endpoint'e gönderilmemelidir.
-
-Backend ekibinin ayrı bir endpoint oluşturması gerekir; önerilen adres `POST /api/Analiz/goruntu-sonucu`dur. Bu endpoint aşağıdaki alanları kabul eden bir DTO yayımlamalıdır:
-
-- `seraId`
-- `bitkiEvresi`
-- `hastalikDetaylari[].hastalikAdi`
-- `hastalikDetaylari[].guvenSkoru` (yüzde, `0–100`)
-- `domatesDetaylari`
-- `fotografYolu`
-- `analizZamani`
-- `guvenEsigi` (yüzde, `0–100`)
-
-Endpoint/DTO bu sözleşme ile yayınlanana kadar script HTTP isteği yapmaz. Bu yaklaşım, yanlış endpoint'e veri gönderilmesini ve AI sonucunun geçersiz sensör verisi olarak yorumlanmasını önler.
+* Backend bu veriyi aldığında:
+  1. Hastalık tespit edildiyse `Bitki_Hastalik` ve `Bildirim` tablolarına kaydeder.
+  2. `Sera_Durum` üzerindeki `AktifEvreID` alanını günceller.
+  3. SignalR (`ReceivePlantAnalysis`) üzerinden Frontend web arayüzüne anlık uyarı fırlatır.
