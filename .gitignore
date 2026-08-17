@@ -54,8 +54,7 @@ appsettings.*.Local.json
 secrets.json
 
 # Machine-learning models and generated datasets
-*.onnx
-*.pt
+*.weights
 *.pth
 *.h5
 *.keras
@@ -63,7 +62,14 @@ secrets.json
 *.pkl
 data/
 datasets/
-models/
+
+# Whitelist essential project AI models
+!1_AI_Python/Goruntu_Isleme/model.onnx
+!1_AI_Python/Goruntu_Isleme/model_domates.onnx
+!1_AI_Python/Goruntu_Isleme/yolov8n-seg.pt
+
+# Whitelist C# Models folder
+!2_Backend_CSharp/Models/
 
 # Temporary files
 *.tmp

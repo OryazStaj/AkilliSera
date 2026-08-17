@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using AkilliSera_API.Models;
 using AkilliSera_API.Services;
 
@@ -36,6 +36,5 @@ namespace AkilliSera_API.Controllers
             return Ok(new { message = "İlaçlama kaydı başarıyla eklendi." });
         }
 
-    }
     }
 }

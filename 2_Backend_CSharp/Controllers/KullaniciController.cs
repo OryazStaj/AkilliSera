@@ -1,4 +1,4 @@
-﻿using AkilliSera_API.Models;
+using AkilliSera_API.Models;
 using AkilliSera_API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,10 +24,9 @@ namespace AkilliSera_API.Controllers
 
             var guvenliListe = kullanicilar.Select(k => new
             {
-                k.Id, 
+                Id = k.KullaniciId, 
                 k.Isim,
                 k.Eposta,
-
             });
 
             return Ok(guvenliListe);

@@ -1,76 +1,59 @@
-# Akilli Sera - Ekip Kurulum Gereksinimleri
+# 🌱 Akıllı Sera - Hızlı Kurulum Kılavuzu
 
-Bu dokuman, tum ekiplerin kendi ortamini ayni standartta hazirlamasi icin olusturuldu.
+Bu rehber, projenin tüm modüllerini (AI, SQL Veritabanı, Backend ve Frontend) tek komutla kendi bilgisayarınızda hazır hale getirmeniz için hazırlanmıştır.
 
-## 1) Ortak Gereksinimler
+---
 
-- Git
-- .NET SDK 9.x (frontend icin)
-- .NET SDK 8.x (backend icin)
-- Python 3.11
-- SQL Server (Express olur) + SSMS veya Azure Data Studio
+## 🛠️ 1. Ön Gereksinimler (Sadece 1 Kez Kurulacaklar)
 
-## 2) AI Ekibi (1_AI_Python)
+Projeyi çalıştırmadan önce bilgisayarınızda şu temel programların kurulu olması gerekir:
 
-Kurulum:
+1. **Git**
+2. **.NET SDK** (.NET 8.0 ve .NET 9.0)
+3. **Python 3.11+** *(Kurulum sırasında "Add Python to PATH" kutucuğunu işaretleyin)*
+4. **MS SQL Server** *(SQL Express veya Standart) + **SSMS***
 
-```powershell
-cd 1_AI_Python
-pip install -r requirements.txt
-```
+---
 
-Kullanilan paketler [1_AI_Python/requirements.txt](1_AI_Python/requirements.txt) icinde yonetilir.
+## 🚀 2. Tek Komutla Otomatik Kurulum (Önerilen)
 
-## 3) Backend Ekibi (2_Backend_CSharp)
-
-Kurulum:
+Projeyi indirdikten sonra kök dizinde **PowerShell** açın ve tek komut çalıştırın:
 
 ```powershell
-cd 2_Backend_CSharp
-dotnet restore
-dotnet build
+.\setup-all.ps1
 ```
 
-Not:
-- NuGet paketleri csproj dosyasinda tanimli oldugu icin ayri bir paket listesi gerekmez.
-- Gelistirme baglanti metnini appsettings.Development.json veya user-secrets ile verin.
+### 🤖 Bu Script Sizin İçin Ne Yapar?
+* ✅ **AI (Python):** `requirements.txt` içindeki yapay zeka paketlerini yükler.
+* ✅ **SQL Veritabanı:** Bilgisayarınızdaki SQL Server'ı (`.` veya `.\SQLEXPRESS`) otomatik bulur, `AkilliSeraDB` veritabanını ve tüm tabloları oluşturur.
+* ✅ **Bağlantı Ayarı:** Backend `appsettings.json` dosyasındaki veritabanı adresini sizin bilgisayarınıza göre otomatik ayarlar.
+* ✅ **Backend & Frontend:** .NET projelerinin paketlerini geri yükler ve hatasız derler.
 
-## 4) Frontend Ekibi (4_Frontend_Web)
+---
 
-Kurulum:
+## 🧪 3. Sistemi Test Etme (Hızlı Başlangıç)
 
-```powershell
-cd 4_Frontend_Web
-dotnet restore
-dotnet build
-```
+Donanım veya ESP32 olmadan sistemi test etmek için:
 
-## 5) ESP32 Ekibi (3_ESP32_Embedded)
+1. **Backend'i Başlatın:**
+   ```powershell
+   cd 2_Backend_CSharp
+   dotnet run --launch-profile https
+   ```
+   *Tarayıcıda API test panelini açın:* `https://localhost:7266/swagger`
 
-Kullanilan kutuphaneler [3_ESP32_Embedded/libraries.txt](3_ESP32_Embedded/libraries.txt) dosyasina yazilmistir.
+2. **Frontend'i (Web Arayüzü) Başlatın:**
+   ```powershell
+   cd 4_Frontend_Web
+   dotnet run
+   ```
+   *Terminalde çıkan adresi tarayıcınızda açın.*
 
-Gerekli olanlar:
-- ESP32 Board Package
-- ArduinoJson
-- DHT sensor kutuphaneleri
+---
 
-## 6) Veritabani Ekibi (5_Veritabanı_SQL)
+## 📌 4. Ekip Bazlı Manuel Komutlar (İsteğe Bağlı)
 
-Kurulum sirasiyla SQL script calistirin:
-1. 01_Sabit_Referans_Tablolari.sql
-2. 02_Dinamik_Log_Tablolari.sql
-3. 05_Dis_Ortam.sql
-4. 06_Kullanici_ve_Bildirim_Tablolari.sql
-5. 07_Ilaclama_Takip.sql
-6. 03_Baslangic_Verileri.sql
-7. 04_Stored_Prosedur_Tablolari.sql
-
-## 7) Tek Komutla Hazirlik (Opsiyonel)
-
-Kok dizinde asagidaki script ile AI + backend + frontend kurulumunu hizlica baslatabilirsiniz:
-
-```powershell
-./setup-all.ps1
-```
-
-Script dosyasi: [setup-all.ps1](setup-all.ps1)
+* **AI Ekibi:** `cd 1_AI_Python` ➔ `pip install -r requirements.txt`
+* **Backend Ekibi:** `cd 2_Backend_CSharp` ➔ `dotnet build`
+* **Frontend Ekibi:** `cd 4_Frontend_Web` ➔ `dotnet build`
+* **ESP32 Ekibi:** Gerekli kütüphaneler için [3_ESP32_Embedded/libraries.txt](3_ESP32_Embedded/libraries.txt) dosyasını inceleyin.
