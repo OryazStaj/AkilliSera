@@ -1,4 +1,4 @@
-﻿@page
+@page
 
 @{
     ViewData["Title"] = "Sensörler";
@@ -887,31 +887,13 @@
 
 
         async function signalRBaslat() {
-
             try {
-
                 await seraConnection.start();
-
-
-                console.log(
-                    "SignalR bağlantısı kuruldu."
-                );
-
+                console.log("SignalR bağlantısı kuruldu.");
             }
             catch (error) {
-
-                console.error(
-                    "SignalR bağlantı hatası:",
-                    error
-                );
-
-
-                arizaEkle(
-                    "⚠️ Canlı sensör bağlantısı kurulamadı."
-                );
-
+                console.warn("Canlı SignalR akışı beklemede (cihaz bağlı değilken normaldir).", error);
             }
-
         }
 
 
