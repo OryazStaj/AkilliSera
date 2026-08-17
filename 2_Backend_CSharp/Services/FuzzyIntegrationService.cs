@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using AkilliSera_API.Models;
 
-namespace AkilliSera_API.Models
+namespace AkilliSera_API.Services
 {
     public class FuzzyIntegrationService
     {
@@ -13,7 +13,7 @@ namespace AkilliSera_API.Models
         }
 
         // Hastalık bilgisini sildik, sadece sensör verisi (sensorData) alıyor
-        public async Task<FinalCommandDto> ProcessAndRouteAsync(object sensorData)
+        public async Task<FinalCommandDto?> ProcessAndRouteAsync(object sensorData)
         {
             // 1. Python Bulanık Mantık servisine (kapısına) sensör verisini yolluyoruz
             var response = await _httpClient.PostAsJsonAsync("http://127.0.0.1:5000/api/fuzzy/calculate", sensorData);
@@ -26,6 +26,10 @@ namespace AkilliSera_API.Models
 
             // 2. Python'dan gelen JSON kararını bizim yazdığımız DTO sınıfına çeviriyoruz
             var fuzzyDecision = await response.Content.ReadFromJsonAsync<FuzzyDecisionDto>();
+            if (fuzzyDecision?.Kararlar == null)
+            {
+                return null;
+            }
 
             // 3. Çıkan sonucu Yusuf (Donanım) ve Sude (Veritabanı) için temiz bir pakete koyuyoruz
             var finalCommand = new FinalCommandDto

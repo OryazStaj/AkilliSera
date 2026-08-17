@@ -79,7 +79,7 @@ namespace AkilliSera_API.Services
         }
 
        
-        public Kullanicilar KullaniciDogrula(string eposta, string sifre)
+        public Kullanicilar? KullaniciDogrula(string eposta, string sifre)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace AkilliSera_API.Services
                 var kullanici = _context.Kullanicilars
                     .FirstOrDefault(k => k.Eposta == eposta && k.Sifre == sifre);
 
-                return kullanici; 
+                return kullanici;
             }
             catch (Exception ex)
             {

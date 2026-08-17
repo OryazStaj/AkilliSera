@@ -9,7 +9,7 @@ Guncelleme tarihi: 2026-08-17 (kod tabani uzerinden dogrulandi)
 | Alan | Durum | Gerekli ilk is |
 |---|---|---|
 | Veritabani | SQL semasi ve dosyalar mevcut | Bos DB'de kurulum sirasi ve FK bagimliliklarini ekipce yeniden dogrulamak |
-| Backend | Telemetry + SignalR kodu aktif, ancak `dotnet build` su an basarisiz | `FuzzyIntegrationService` bagimliliklarini (DTO/namespace) duzeltip build'i yesile cekmek |
+| Backend | Telemetry + SignalR kodu aktif, `dotnet build` basarili | Swagger + veritabani baglantisi ile calisma testlerini tamamlamak |
 | Frontend | Razor Pages, API istemcisi ve SignalR baglantilari mevcut; `dotnet build` basarili | Backend ayaga kalkinca canli API + hub testlerini tekrar gecmek |
 | ESP32 | Cihaz kodu var ve Wi-Fi/JSON POST uygulaniyor | Hedef endpoint ve JSON alanlarini backend ile ayni sozlesmeye getirmek |
 | Yapay zeka | Goruntu analizi JSON cikti sozlesmesi hazir | Backend'de goruntu analizi kabul endpoint/DTO'su yayinlanmali |
@@ -52,17 +52,15 @@ Guncelleme tarihi: 2026-08-17 (kod tabani uzerinden dogrulandi)
 
 ### A. Kritik derleme durumu
 
-#### 1. Guncel build blokaji (kritik)
+#### 1. Guncel build durumu (tamamlandi)
 
-`dotnet build` sonucu su an basarisizdir. Guncel hata:
+`dotnet build` backend tarafinda basarili.
 
-- `Services/FuzzyIntegrationService.cs`: `FinalCommandDto` bulunamadi (CS0246).
+Tamamlananlar:
 
-Tamamlanacaklar:
-
-- [ ] `FinalCommandDto` ve `FuzzyDecisionDto` tiplerini ekleyin veya mevcut tip adlariyla kodu esitleyin.
-- [ ] `FuzzyIntegrationService` namespace'ini `Program.cs` kaydiyla (`AkilliSera_API.Services`) uyumlu hale getirin.
-- [ ] Build'i tekrar calistirip backend'i yesile cekin.
+- [x] `FinalCommandDto` ve `FuzzyDecisionDto` tipleri eklendi.
+- [x] `FuzzyIntegrationService` namespace'i `Program.cs` kaydiyla (`AkilliSera_API.Services`) uyumlu hale getirildi.
+- [x] Build tekrar calistirildi ve basarili sonuc alindi.
 
 Not: Onceki namespace uyusmazligi (`TelemetryController`/`SeraHub`/`HealthCheckService`) cozulmus durumda.
 

@@ -66,8 +66,8 @@ namespace AkilliSera_API.Controllers
       
         public class KullaniciGirisModel
         {
-            public string Eposta { get; set; }
-            public string Sifre { get; set; }
+            public string Eposta { get; set; } = string.Empty;
+            public string Sifre { get; set; } = string.Empty;
         }
     }
 }
