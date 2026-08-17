@@ -42,7 +42,7 @@ builder.Services.AddDbContext<AkilliSeraDbContext>(options =>
 
 builder.Services.AddScoped<DataBaseService>();
 
-// 👉 SENİN EKLEDİĞİN BULANIK MANTIK SERVİSİ KAYDI BURADA 👈
+
 builder.Services.AddHttpClient<AkilliSera_API.Services.FuzzyIntegrationService>();
 
 // ==========================================
