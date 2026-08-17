@@ -8,15 +8,29 @@ var builder = WebApplication.CreateBuilder(args);
 // ==========================================
 // 1. CORS YAPILANDIRMASI
 // ==========================================
-// Web, mobil ve WebSocket (SignalR) bağlantılarına izin vermek için yapılandırıldı.
+// Frontend uygulamasının adresleri (Geliştirme ve Üretim portları)
+var allowedOrigins = new[] { "https://localhost:7214", "http://localhost:5108" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); // SignalR canlı bağlantı kimlik doğrulama desteği
+        if (builder.Environment.IsDevelopment())
+        {
+            // GELİŞTİRME ORTAMI: Localhost testleri için esnek bağlantı
+            policy.SetIsOriginAllowed(_ => true)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials(); // SignalR canlı bağlantı kimlik doğrulama desteği
+        }
+        else
+        {
+            // ÜRETİM ORTAMI: Yalnızca izin verilen Frontend adresleri
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
     });
 });
 
