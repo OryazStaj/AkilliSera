@@ -1,0 +1,417 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Bildirimler";
+}
+
+<div class="content-header mb-4">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <h1 class="mb-1">
+                🔔 Bildirimler
+            </h1>
+
+            <p class="text-muted mb-0">
+                Sera sisteminden gelen bildirim ve uyarılar
+            </p>
+
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            <span id="okunmamisRozet"
+                  class="badge text-bg-danger fs-6">
+                Okunmamış: 0
+            </span>
+
+            <button type="button"
+                    id="yenileBtn"
+                    class="btn btn-primary"
+                    onclick="bildirimleriGetir()">
+
+                <i class="fas fa-rotate me-1"></i>
+                Yenile
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+
+            <i class="fas fa-bell me-2"></i>
+
+            Sistem Bildirimleri
+
+        </h3>
+
+    </div>
+
+
+    <div class="card-body">
+
+
+        <!-- YÜKLENİYOR -->
+        <div id="bildirimYukleniyor"
+             class="alert alert-info">
+
+            <i class="fas fa-spinner fa-spin me-2"></i>
+
+            Bildirimler yükleniyor...
+
+        </div>
+
+
+        <!-- HATA -->
+        <div id="bildirimHata"
+             class="alert alert-danger d-none">
+        </div>
+
+
+        <!-- BOŞ -->
+        <div id="bildirimBos"
+             class="alert alert-success d-none">
+
+            <i class="fas fa-check-circle me-2"></i>
+
+            Şu anda bildirim bulunmuyor.
+
+        </div>
+
+
+        <!-- TABLO -->
+        <div class="table-responsive">
+
+            <table class="table table-hover table-bordered align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th style="width: 60px;">
+                            #
+                        </th>
+
+                        <th>
+                            Mesaj
+                        </th>
+
+                        <th style="width: 220px;">
+                            Bildirim Zamanı
+                        </th>
+
+                        <th style="width: 130px;">
+                            Durum
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="bildirimTablosu">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<style>
+
+    .bildirim-yeni-satir {
+        background-color: #fff1f2 !important;
+        border-left: 5px solid #dc3545;
+    }
+
+    .bildirim-okundu-satir {
+        background-color: #ffffff !important;
+        border-left: 5px solid #198754;
+    }
+
+    .bildirim-mesaj {
+        font-weight: 500;
+    }
+</style>
+
+
+
+@section Scripts {
+
+    <script>
+
+        // TARİH DÜZENLE
+
+        function tarihDuzenle(tarih) {
+
+            if (!tarih) {
+                return "--";
+            }
+
+            const tarihNesnesi =
+                new Date(tarih);
+
+            if (isNaN(tarihNesnesi.getTime())) {
+                return tarih;
+            }
+
+            return tarihNesnesi.toLocaleString(
+                "tr-TR",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+        }
+
+
+        // BİLDİRİMLERİ GETİR
+
+        async function bildirimleriGetir() {
+
+            const tablo =
+                document.getElementById(
+                    "bildirimTablosu"
+                );
+
+            const loading =
+                document.getElementById(
+                    "bildirimYukleniyor"
+                );
+
+            const hata =
+                document.getElementById(
+                    "bildirimHata"
+                );
+
+            const bos =
+                document.getElementById(
+                    "bildirimBos"
+                );
+
+            const yenileBtn =
+                document.getElementById(
+                    "yenileBtn"
+                );
+
+            const rozet =
+                document.getElementById(
+                    "okunmamisRozet"
+                );
+
+
+            loading.classList.remove("d-none");
+
+            hata.classList.add("d-none");
+
+            bos.classList.add("d-none");
+
+            tablo.innerHTML = "";
+
+            yenileBtn.disabled = true;
+
+
+            try {
+
+                const veriler =
+                    await apiGet(
+                        "/api/Bildirim/liste"
+                    );
+
+
+                console.log(
+                    "Bildirim API verisi:",
+                    veriler
+                );
+
+
+                loading.classList.add("d-none");
+
+
+                if (
+                    !Array.isArray(veriler) ||
+                    veriler.length === 0
+                ) {
+
+                    bos.classList.remove("d-none");
+
+                    rozet.innerText =
+                        "Okunmamış: 0";
+
+                    return;
+                }
+
+
+                // EN YENİLER ÜSTTE
+                veriler.sort(function (a, b) {
+
+                    return new Date(
+                        b.bildirimZamani
+                    ) -
+                    new Date(
+                        a.bildirimZamani
+                    );
+
+                });
+
+
+                // OKUNMAMIŞ SAYISI
+                const okunmamisSayisi =
+                    veriler.filter(
+                        function (veri) {
+
+                            return veri.okunduBilgisi !== true;
+
+                        }
+                    ).length;
+
+
+                rozet.innerText =
+                    "Okunmamış: " +
+                    okunmamisSayisi;
+
+
+                // TABLO
+                veriler.forEach(
+                    function (veri, index) {
+
+
+                        const okunmus =
+                            veri.okunduBilgisi === true;
+
+
+                        const satir =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        satir.className =
+                            okunmus
+                                ? "bildirim-okundu-satir"
+                                : "bildirim-yeni-satir";
+
+
+                        satir.innerHTML = `
+
+                            <td class="text-center">
+
+                                ${
+                                    okunmus
+                                        ? '<i class="fas fa-check-circle text-success"></i>'
+                                        : '<i class="fas fa-bell text-danger"></i>'
+                                }
+
+                            </td>
+
+
+                            <td class="bildirim-mesaj">
+
+                                ${veri.mesaj ?? "--"}
+
+                            </td>
+
+
+                            <td>
+
+                                <i class="far fa-clock me-1 text-muted"></i>
+
+                                ${
+                                    tarihDuzenle(
+                                        veri.bildirimZamani
+                                    )
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    okunmus
+                                        ?
+                                        `
+                                        <span class="badge text-bg-success">
+                                            Okundu
+                                        </span>
+                                        `
+                                        :
+                                        `
+                                        <span class="badge text-bg-danger">
+                                            Yeni
+                                        </span>
+                                        `
+                                }
+
+                            </td>
+
+                        `;
+
+
+                        tablo.appendChild(
+                            satir
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Bildirim API hatası:",
+                    error
+                );
+
+
+                loading.classList.add("d-none");
+
+
+                hata.classList.remove("d-none");
+
+
+                hata.innerText =
+                    "Bildirimler alınamadı: " +
+                    (
+                        error.message ||
+                        "API bağlantı hatası"
+                    );
+
+            }
+
+            finally {
+
+                yenileBtn.disabled =
+                    false;
+
+            }
+
+        }
+
+
+        // SAYFA AÇILDIĞINDA
+        bildirimleriGetir();
+
+    </script>
+
+}

@@ -520,12 +520,107 @@
         }
 
 
-
-        // =====================================================
         // SAYFA AÇILDIĞINDA
-        // =====================================================
-
         hastaliklariGetir();
+
+        // SIGNALR - CANLI HASTALIK ANALİZİ
+        const connection =
+            new signalR.HubConnectionBuilder()
+                .withUrl(API_BASE_URL + "/serahub")
+                .withAutomaticReconnect()
+                .build();
+
+
+        // YENİ BİTKİ / HASTALIK ANALİZİ GELDİĞİNDE
+        connection.on(
+            "ReceivePlantAnalysis",
+            function (veri) {
+
+                console.log(
+                    "Yeni bitki analizi geldi:",
+                    veri
+                );
+
+                // AnalizController hastalık kaydını DB'ye
+                // ekledikten sonra bu eventi gönderiyor.
+                // Bu yüzden gerçek hastalık listesini tekrar API'den çekiyoruz.
+                hastaliklariGetir();
+            }
+        );
+
+
+        // SIGNALR BAĞLANTISINI BAŞLAT
+        async function signalRBaslat() {
+
+            try {
+
+                await connection.start();
+
+                console.log(
+                    "Hastalık SignalR bağlantısı başarılı."
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Hastalık SignalR bağlantı hatası:",
+                    error
+                );
+
+                setTimeout(
+                    signalRBaslat,
+                    5000
+                );
+            }
+        }
+
+
+        // BAĞLANTI KOPARKEN
+        connection.onreconnecting(
+            function (error) {
+
+                console.warn(
+                    "Hastalık SignalR yeniden bağlanıyor...",
+                    error
+                );
+            }
+        );
+
+
+        // TEKRAR BAĞLANDIĞINDA
+        connection.onreconnected(
+            function (connectionId) {
+
+                console.log(
+                    "Hastalık SignalR tekrar bağlandı:",
+                    connectionId
+                );
+
+                // Arada kaçırılan hastalık kaydı varsa getir
+                hastaliklariGetir();
+            }
+        );
+
+
+        // BAĞLANTI TAMAMEN KAPANIRSA
+        connection.onclose(
+            function () {
+
+                console.warn(
+                    "Hastalık SignalR bağlantısı kapandı."
+                );
+
+                setTimeout(
+                    signalRBaslat,
+                    5000
+                );
+            }
+        );
+
+
+        // SIGNALR BAŞLAT
+        signalRBaslat();
 
     </script>
 

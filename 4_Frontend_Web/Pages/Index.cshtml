@@ -6,58 +6,82 @@
 
 <div class="content-header mb-4">
     <h1>🌿 Sera Otomasyonu</h1>
+
     <p class="text-muted">
         Seranın anlık durumu ve sistem bilgileri
     </p>
 </div>
 
 
-<!-- ====================================================== -->
 <!-- API / CİHAZ DURUMU -->
-<!-- ====================================================== -->
+<div id="sensorYukleniyor"
+     class="alert alert-info">
 
-<div id="sensorYukleniyor" class="alert alert-info">
     <i class="fas fa-spinner fa-spin me-2"></i>
     Sensör verileri yükleniyor...
+
 </div>
 
-<div id="sensorHata" class="alert alert-danger d-none"></div>
+<div id="sensorHata"
+     class="alert alert-danger d-none">
+</div>
 
-<div id="sensorBos" class="alert alert-warning d-none">
+<div id="sensorBos"
+     class="alert alert-warning d-none">
+
     Henüz sensör verisi bulunmuyor.
+
 </div>
+
 
 <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+
     <span>
+
         <strong>ESP32 Durumu:</strong>
-        <span id="cihazDurumu" class="badge bg-secondary">
+
+        <span id="cihazDurumu"
+              class="badge bg-secondary">
+
             Kontrol ediliyor...
+
         </span>
+
     </span>
 
-    <span id="sonGorulme" class="text-muted small">
+
+    <span id="sonGorulme"
+          class="text-muted small">
+
         Son görülme: --
+
     </span>
+
 </div>
 
 
-<!-- ====================================================== -->
-<!-- ANLIK SENSÖR DEĞERLERİ -->
-<!-- ====================================================== -->
 
+<!-- ANLIK SENSÖR DEĞERLERİ -->
 <h4 class="mb-3">
     Anlık Sensör Değerleri
 </h4>
 
 <div class="row">
 
+
     <!-- SICAKLIK -->
     <div class="col-lg-4 col-md-6 col-12">
+
         <div class="small-box text-bg-danger">
 
             <div class="inner">
-                <h3 id="sicaklikDegeri">--</h3>
+
+                <h3 id="sicaklikDegeri">
+                    --
+                </h3>
+
                 <p>Sıcaklık</p>
+
             </div>
 
             <div class="small-box-icon">
@@ -65,16 +89,23 @@
             </div>
 
         </div>
+
     </div>
 
 
     <!-- ORTAM NEM -->
     <div class="col-lg-4 col-md-6 col-12">
+
         <div class="small-box text-bg-primary">
 
             <div class="inner">
-                <h3 id="ortamNemDegeri">--</h3>
+
+                <h3 id="ortamNemDegeri">
+                    --
+                </h3>
+
                 <p>Ortam Nem</p>
+
             </div>
 
             <div class="small-box-icon">
@@ -82,16 +113,23 @@
             </div>
 
         </div>
+
     </div>
 
 
     <!-- TOPRAK NEM -->
     <div class="col-lg-4 col-md-6 col-12">
+
         <div class="small-box text-bg-success">
 
             <div class="inner">
-                <h3 id="toprakNemDegeri">--</h3>
+
+                <h3 id="toprakNemDegeri">
+                    --
+                </h3>
+
                 <p>Toprak Nem</p>
+
             </div>
 
             <div class="small-box-icon">
@@ -99,26 +137,34 @@
             </div>
 
         </div>
+
     </div>
 
 </div>
 
 
-<!-- ====================================================== -->
-<!-- İLAÇLAMA DURUMU -->
-<!-- ====================================================== -->
 
+<!-- İLAÇLAMA DURUMU -->
 <h4 class="mt-4 mb-3">
     İlaçlama Durumu
 </h4>
 
-<div id="ilaclamaYukleniyor" class="alert alert-info">
+
+<div id="ilaclamaYukleniyor"
+     class="alert alert-info">
+
     İlaçlama bilgileri yükleniyor...
+
 </div>
 
-<div id="ilaclamaHata" class="alert alert-danger d-none"></div>
+
+<div id="ilaclamaHata"
+     class="alert alert-danger d-none">
+</div>
+
 
 <div class="row">
+
 
     <div class="col-lg-4 col-md-6 col-12">
 
@@ -149,23 +195,34 @@
         <div class="card">
 
             <div class="card-header">
+
                 <h3 class="card-title">
                     🧴 Son İlaçlama Bilgisi
                 </h3>
+
             </div>
 
             <div class="card-body">
 
                 <p>
+
                     <strong>Durum:</strong>
+
                     <span id="sonIlaclamaDurum">
                         Veri bekleniyor...
                     </span>
+
                 </p>
 
+
                 <p>
+
                     <strong>Tarih:</strong>
-                    <span id="sonIlaclamaTarih">--</span>
+
+                    <span id="sonIlaclamaTarih">
+                        --
+                    </span>
+
                 </p>
 
             </div>
@@ -177,15 +234,16 @@
 </div>
 
 
-<!-- ====================================================== -->
+
 <!-- GRAFİKLER -->
-<!-- ====================================================== -->
 
 <h4 class="mt-4 mb-3">
     Günlük Değişimler
 </h4>
 
+
 <div class="row">
+
 
     <!-- SICAKLIK -->
     <div class="col-lg-6 col-12">
@@ -193,15 +251,20 @@
         <div class="card">
 
             <div class="card-header">
+
                 <h3 class="card-title">
                     🌡️ Sıcaklık Değişimi
                 </h3>
+
             </div>
 
             <div class="card-body">
 
                 <div style="height:300px;">
-                    <canvas id="sicaklikGrafigi"></canvas>
+
+                    <canvas id="sicaklikGrafigi">
+                    </canvas>
+
                 </div>
 
             </div>
@@ -217,15 +280,20 @@
         <div class="card">
 
             <div class="card-header">
+
                 <h3 class="card-title">
                     🌱 Toprak Nem Değişimi
                 </h3>
+
             </div>
 
             <div class="card-body">
 
                 <div style="height:300px;">
-                    <canvas id="toprakNemGrafigi"></canvas>
+
+                    <canvas id="toprakNemGrafigi">
+                    </canvas>
+
                 </div>
 
             </div>
@@ -237,21 +305,29 @@
 </div>
 
 
-<!-- ====================================================== -->
+
 <!-- BİTKİ SAĞLIĞI -->
-<!-- ====================================================== -->
 
 <h4 class="mt-4 mb-3">
     Bitki Sağlığı
 </h4>
 
-<div id="hastalikYukleniyor" class="alert alert-info">
+
+<div id="hastalikYukleniyor"
+     class="alert alert-info">
+
     Hastalık bilgileri yükleniyor...
+
 </div>
 
-<div id="hastalikHata" class="alert alert-danger d-none"></div>
+
+<div id="hastalikHata"
+     class="alert alert-danger d-none">
+</div>
+
 
 <div class="row">
+
 
     <div class="col-lg-4 col-md-6 col-12">
 
@@ -289,35 +365,40 @@
         <div class="card">
 
             <div class="card-header">
+
                 <h3 class="card-title">
                     🔬 Son Hastalık Analizi
                 </h3>
+
             </div>
+
 
             <div class="card-body">
 
                 <p>
+
                     <strong>Hastalık:</strong>
+
                     <span id="sonHastalik">
                         Veri bekleniyor
                     </span>
+
                 </p>
 
+
                 <p>
+
                     <strong>Tespit Oranı:</strong>
+
                     <span id="hastalikOrani">
                         --
                     </span>
+
                 </p>
 
-                <p>
-                    <strong>Analiz Tarihi:</strong>
-                    <span id="hastalikTarihi">
-                        --
-                    </span>
-                </p>
 
                 <p>
+
                     <strong>Durum:</strong>
 
                     <span id="hastalikDurumu"
@@ -326,6 +407,7 @@
                         Bekleniyor
 
                     </span>
+
                 </p>
 
             </div>
@@ -337,10 +419,8 @@
 </div>
 
 
-<!-- ====================================================== -->
-<!-- BİLDİRİMLER -->
-<!-- ====================================================== -->
 
+<!-- BİLDİRİMLER -->
 <div class="card mt-4">
 
     <div class="card-header">
@@ -350,6 +430,7 @@
         </h3>
 
     </div>
+
 
     <div class="card-body">
 
@@ -371,101 +452,108 @@
     <!-- CHART.JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- SIGNALR -->
-    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
-
 
     <script>
 
-        // =========================================================
         // GRAFİK DEĞİŞKENLERİ
-        // =========================================================
-
         let sicaklikGrafik = null;
         let toprakNemGrafik = null;
 
 
 
-        // =========================================================
-        // TARİH GÖSTER
-        // =========================================================
-
+        // TARİH
         function tarihGoster(tarih) {
 
             if (!tarih) {
                 return "--";
             }
 
-            const tarihNesnesi = new Date(tarih);
+
+            const tarihNesnesi =
+                new Date(tarih);
+
 
             if (isNaN(tarihNesnesi.getTime())) {
                 return "--";
             }
 
-            return tarihNesnesi.toLocaleString("tr-TR");
+
+            return tarihNesnesi.toLocaleString(
+                "tr-TR"
+            );
+
         }
 
 
 
-        // =========================================================
-        // API HATA MESAJI
-        // =========================================================
-
+        // HATA MESAJI
         function hataMesaji(error) {
 
             if (!error) {
                 return "Bilinmeyen bir hata oluştu.";
             }
 
-            return error.message || "API bağlantısı kurulamadı.";
+
+            return (
+                error.message ||
+                "API bağlantısı kurulamadı."
+            );
+
         }
 
 
 
-        // =========================================================
-        // SENSOR KARTLARINI GÜNCELLE
-        // =========================================================
-
+        // SENSÖR KARTLARI
         function sensorKartlariniGuncelle(
             sicaklik,
             ortamNem,
             toprakNem
         ) {
 
-            document.getElementById("sicaklikDegeri").innerText =
+            document.getElementById(
+                "sicaklikDegeri"
+            ).innerText =
                 sicaklik != null
                     ? Number(sicaklik).toFixed(1) + " °C"
                     : "--";
 
 
-            document.getElementById("ortamNemDegeri").innerText =
+            document.getElementById(
+                "ortamNemDegeri"
+            ).innerText =
                 ortamNem != null
                     ? Number(ortamNem).toFixed(1) + " %"
                     : "--";
 
 
-            document.getElementById("toprakNemDegeri").innerText =
+            document.getElementById(
+                "toprakNemDegeri"
+            ).innerText =
                 toprakNem != null
                     ? Number(toprakNem).toFixed(1) + " %"
                     : "--";
+
         }
 
 
 
-        // =========================================================
-        // SENSOR GEÇMİŞİNİ GETİR
-        // =========================================================
-
+        // SENSOR GEÇMİŞİ
         async function sensorVerileriniGetir() {
 
             const loading =
-                document.getElementById("sensorYukleniyor");
+                document.getElementById(
+                    "sensorYukleniyor"
+                );
 
             const hataAlani =
-                document.getElementById("sensorHata");
+                document.getElementById(
+                    "sensorHata"
+                );
 
             const bosAlani =
-                document.getElementById("sensorBos");
+                document.getElementById(
+                    "sensorBos"
+                );
 
 
             loading.classList.remove("d-none");
@@ -489,31 +577,46 @@
                     veriler.length === 0
                 ) {
 
-                    bosAlani.classList.remove("d-none");
+                    bosAlani.classList.remove(
+                        "d-none"
+                    );
 
-                    sicaklikGrafiginiCiz([], []);
-                    toprakNemGrafiginiCiz([], []);
+                    sicaklikGrafiginiCiz(
+                        [],
+                        []
+                    );
+
+                    toprakNemGrafiginiCiz(
+                        [],
+                        []
+                    );
 
                     return;
                 }
 
 
-                // Backend sırasına güvenmiyoruz.
-                // Tarihe göre eskiden yeniye sıralıyoruz.
-
                 const siraliVeriler =
-                    [...veriler].sort(function (a, b) {
+                    [...veriler].sort(
+                        function (a, b) {
 
-                        return (
-                            new Date(a.kayitZamani).getTime() -
-                            new Date(b.kayitZamani).getTime()
-                        );
+                            return (
+                                new Date(
+                                    a.kayitZamani
+                                ).getTime()
+                                -
+                                new Date(
+                                    b.kayitZamani
+                                ).getTime()
+                            );
 
-                    });
+                        }
+                    );
 
 
                 const sonVeri =
-                    siraliVeriler[siraliVeriler.length - 1];
+                    siraliVeriler[
+                        siraliVeriler.length - 1
+                    ];
 
 
                 sensorKartlariniGuncelle(
@@ -524,36 +627,56 @@
 
 
                 const saatler =
-                    siraliVeriler.map(function (veri) {
+                    siraliVeriler.map(
+                        function (veri) {
 
-                        const tarih =
-                            new Date(veri.kayitZamani);
+                            const tarih =
+                                new Date(
+                                    veri.kayitZamani
+                                );
 
-                        if (isNaN(tarih.getTime())) {
-                            return "";
-                        }
 
-                        return tarih.toLocaleTimeString(
-                            "tr-TR",
-                            {
-                                hour: "2-digit",
-                                minute: "2-digit"
+                            if (
+                                isNaN(
+                                    tarih.getTime()
+                                )
+                            ) {
+
+                                return "";
+
                             }
-                        );
 
-                    });
+
+                            return tarih.toLocaleTimeString(
+                                "tr-TR",
+                                {
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                }
+                            );
+
+                        }
+                    );
 
 
                 const sicakliklar =
-                    siraliVeriler.map(function (veri) {
-                        return veri.ortamSicakligi;
-                    });
+                    siraliVeriler.map(
+                        function (veri) {
+
+                            return veri.ortamSicakligi;
+
+                        }
+                    );
 
 
                 const toprakNemleri =
-                    siraliVeriler.map(function (veri) {
-                        return veri.toprakNemi;
-                    });
+                    siraliVeriler.map(
+                        function (veri) {
+
+                            return veri.toprakNemi;
+
+                        }
+                    );
 
 
                 sicaklikGrafiginiCiz(
@@ -568,29 +691,36 @@
                 );
 
             }
+
             catch (error) {
 
-                loading.classList.add("d-none");
+                loading.classList.add(
+                    "d-none"
+                );
 
-                hataAlani.classList.remove("d-none");
+
+                hataAlani.classList.remove(
+                    "d-none"
+                );
+
 
                 hataAlani.innerText =
                     "Sensör verileri alınamadı: " +
                     hataMesaji(error);
 
+
                 console.error(
                     "Sensör API hatası:",
                     error
                 );
+
             }
+
         }
 
 
 
-        // =========================================================
         // SICAKLIK GRAFİĞİ
-        // =========================================================
-
         function sicaklikGrafiginiCiz(
             saatler,
             degerler
@@ -601,8 +731,12 @@
                 sicaklikGrafik.data.labels =
                     saatler;
 
-                sicaklikGrafik.data.datasets[0].data =
+
+                sicaklikGrafik.data
+                    .datasets[0]
+                    .data =
                     degerler;
+
 
                 sicaklikGrafik.update();
 
@@ -624,7 +758,8 @@
 
                         data: {
 
-                            labels: saatler,
+                            labels:
+                                saatler,
 
                             datasets: [
                                 {
@@ -653,17 +788,17 @@
 
                             maintainAspectRatio:
                                 false
-
                         }
                     }
                 );
+
         }
 
 
 
-        // =========================================================
+        // =====================================================
         // TOPRAK NEM GRAFİĞİ
-        // =========================================================
+        // =====================================================
 
         function toprakNemGrafiginiCiz(
             saatler,
@@ -675,8 +810,12 @@
                 toprakNemGrafik.data.labels =
                     saatler;
 
-                toprakNemGrafik.data.datasets[0].data =
+
+                toprakNemGrafik.data
+                    .datasets[0]
+                    .data =
                     degerler;
+
 
                 toprakNemGrafik.update();
 
@@ -732,187 +871,146 @@
                             scales: {
 
                                 y: {
-                                    min: 0,
-                                    max: 100
+
+                                    min:
+                                        0,
+
+                                    max:
+                                        100
                                 }
 
                             }
                         }
                     }
                 );
+
         }
 
 
 
-        // =========================================================
-        // SIGNALR'DAN GELEN CANLI VERİYİ GRAFİĞE EKLE
-        // =========================================================
-
-        function canlıVeriyiGrafigeEkle(veri) {
+        // CANLI VERİYİ GRAFİĞE EKLE
+        function canliVeriyiGrafigeEkle(
+            veri
+        ) {
 
             if (
                 !sicaklikGrafik ||
                 !toprakNemGrafik
             ) {
+
                 return;
+
             }
 
 
             const tarih =
-                new Date(veri.recordedAt);
+                new Date(
+                    veri.recordedAt
+                );
+
+
+            if (
+                isNaN(
+                    tarih.getTime()
+                )
+            ) {
+
+                return;
+
+            }
 
 
             const saat =
                 tarih.toLocaleTimeString(
                     "tr-TR",
                     {
-                        hour: "2-digit",
-                        minute: "2-digit"
+                        hour:
+                            "2-digit",
+
+                        minute:
+                            "2-digit"
                     }
                 );
 
 
-            sicaklikGrafik.data.labels.push(saat);
+            sicaklikGrafik.data
+                .labels
+                .push(saat);
 
-            sicaklikGrafik
-                .data
+
+            sicaklikGrafik.data
                 .datasets[0]
                 .data
-                .push(veri.temperature);
+                .push(
+                    veri.temperature
+                );
 
 
-            toprakNemGrafik.data.labels.push(saat);
+            toprakNemGrafik.data
+                .labels
+                .push(saat);
 
-            toprakNemGrafik
-                .data
+
+            toprakNemGrafik.data
                 .datasets[0]
                 .data
-                .push(veri.soilMoisture);
+                .push(
+                    veri.soilMoisture
+                );
 
-
-            // Grafikte en fazla 50 kayıt tut
 
             if (
-                sicaklikGrafik.data.labels.length > 50
+                sicaklikGrafik.data
+                    .labels.length > 50
             ) {
 
-                sicaklikGrafik.data.labels.shift();
+                sicaklikGrafik.data
+                    .labels
+                    .shift();
 
-                sicaklikGrafik
-                    .data
+
+                sicaklikGrafik.data
                     .datasets[0]
                     .data
                     .shift();
+
             }
 
 
             if (
-                toprakNemGrafik.data.labels.length > 50
+                toprakNemGrafik.data
+                    .labels.length > 50
             ) {
 
-                toprakNemGrafik.data.labels.shift();
+                toprakNemGrafik.data
+                    .labels
+                    .shift();
 
-                toprakNemGrafik
-                    .data
+
+                toprakNemGrafik.data
                     .datasets[0]
                     .data
                     .shift();
+
             }
 
 
             sicaklikGrafik.update();
 
             toprakNemGrafik.update();
+
         }
 
 
 
-        // =========================================================
-        // SIGNALR BAĞLANTISI
-        // =========================================================
-
-        const seraConnection =
-            new signalR.HubConnectionBuilder()
-
-                .withUrl(
-                    `${API_BASE_URL}/serahub`
-                )
-
-                .withAutomaticReconnect()
-
-                .build();
-
-
-
-        seraConnection.on(
-            "ReceiveTelemetry",
-            function (veri) {
-
-                console.log(
-                    "Canlı Telemetry:",
-                    veri
-                );
-
-
-                sensorKartlariniGuncelle(
-                    veri.temperature,
-                    veri.humidity,
-                    veri.soilMoisture
-                );
-
-
-                canlıVeriyiGrafigeEkle(veri);
-
-
-                document
-                    .getElementById("sensorYukleniyor")
-                    .classList
-                    .add("d-none");
-
-
-                document
-                    .getElementById("sensorHata")
-                    .classList
-                    .add("d-none");
-
-            }
-        );
-
-
-
-        async function signalRBaslat() {
-
-            try {
-
-                await seraConnection.start();
-
-                console.log(
-                    "SignalR bağlantısı kuruldu."
-                );
-
-            }
-            catch (error) {
-
-                console.error(
-                    "SignalR bağlantı hatası:",
-                    error
-                );
-
-            }
-        }
-
-
-
-        // =========================================================
-        // ESP32 ONLINE / OFFLINE
-        // =========================================================
-
+        // ESP32 HEALTH
         async function cihazDurumunuGetir() {
 
             const durum =
                 document.getElementById(
                     "cihazDurumu"
                 );
+
 
             const sonGorulme =
                 document.getElementById(
@@ -928,10 +1026,11 @@
                     );
 
 
-                if (veri.isOnline) {
+                if (veri.isOnline === true) {
 
                     durum.className =
                         "badge bg-success";
+
 
                     durum.innerText =
                         "Online";
@@ -942,8 +1041,10 @@
                     durum.className =
                         "badge bg-danger";
 
+
                     durum.innerText =
                         "Offline";
+
                 }
 
 
@@ -954,10 +1055,12 @@
                     );
 
             }
+
             catch (error) {
 
                 durum.className =
                     "badge bg-danger";
+
 
                 durum.innerText =
                     "Bağlantı Hatası";
@@ -967,14 +1070,12 @@
                     "Son görülme: --";
 
             }
+
         }
 
 
 
-        // =========================================================
         // İLAÇLAMA
-        // =========================================================
-
         async function ilaclamaVerileriniGetir() {
 
             const loading =
@@ -982,14 +1083,21 @@
                     "ilaclamaYukleniyor"
                 );
 
+
             const hata =
                 document.getElementById(
                     "ilaclamaHata"
                 );
 
 
-            loading.classList.remove("d-none");
-            hata.classList.add("d-none");
+            loading.classList.remove(
+                "d-none"
+            );
+
+
+            hata.classList.add(
+                "d-none"
+            );
 
 
             try {
@@ -1000,7 +1108,9 @@
                     );
 
 
-                loading.classList.add("d-none");
+                loading.classList.add(
+                    "d-none"
+                );
 
 
                 if (
@@ -1027,29 +1137,26 @@
 
 
                     return;
+
                 }
 
 
-                /*
-                    IlaclamaTakip modelinin alanlarını
-                    gördüğümüzde burayı kesin DTO
-                    alanlarına göre düzenleyeceğiz.
-                */
-
                 const sonKayit =
-                    veriler[veriler.length - 1];
+                    veriler[
+                        veriler.length - 1
+                    ];
 
 
                 document.getElementById(
                     "ilaclamaDurumu"
                 ).innerText =
-                    sonKayit.durum ??
                     "Kayıt Var";
 
 
                 document.getElementById(
                     "sonIlaclamaDurum"
                 ).innerText =
+                    sonKayit.ilacAdi ??
                     sonKayit.durum ??
                     "İlaçlama kaydı mevcut";
 
@@ -1058,17 +1165,24 @@
                     "sonIlaclamaTarih"
                 ).innerText =
                     tarihGoster(
-                        sonKayit.tarih ??
+                        sonKayit.uygulamaZamani ??
                         sonKayit.uygulamaTarihi ??
                         sonKayit.kayitZamani
                     );
 
             }
+
             catch (error) {
 
-                loading.classList.add("d-none");
+                loading.classList.add(
+                    "d-none"
+                );
 
-                hata.classList.remove("d-none");
+
+                hata.classList.remove(
+                    "d-none"
+                );
+
 
                 hata.innerText =
                     "İlaçlama bilgileri alınamadı: " +
@@ -1081,14 +1195,12 @@
                     "API Hatası";
 
             }
+
         }
 
 
 
-        // =========================================================
         // HASTALIK
-        // =========================================================
-
         async function hastalikVerileriniGetir() {
 
             const loading =
@@ -1096,14 +1208,21 @@
                     "hastalikYukleniyor"
                 );
 
+
             const hata =
                 document.getElementById(
                     "hastalikHata"
                 );
 
 
-            loading.classList.remove("d-none");
-            hata.classList.add("d-none");
+            loading.classList.remove(
+                "d-none"
+            );
+
+
+            hata.classList.add(
+                "d-none"
+            );
 
 
             try {
@@ -1114,7 +1233,9 @@
                     );
 
 
-                loading.classList.add("d-none");
+                loading.classList.add(
+                    "d-none"
+                );
 
 
                 if (
@@ -1146,12 +1267,6 @@
                         "--";
 
 
-                    document.getElementById(
-                        "hastalikTarihi"
-                    ).innerText =
-                        "--";
-
-
                     const durum =
                         document.getElementById(
                             "hastalikDurumu"
@@ -1173,11 +1288,14 @@
 
 
                     return;
+
                 }
 
 
                 const sonKayit =
-                    veriler[veriler.length - 1];
+                    veriler[
+                        veriler.length - 1
+                    ];
 
 
                 document.getElementById(
@@ -1203,23 +1321,9 @@
                 document.getElementById(
                     "hastalikOrani"
                 ).innerText =
-
                     sonKayit.hastalikOrani != null
-
                         ? sonKayit.hastalikOrani + " %"
-
                         : "--";
-
-
-                /*
-                    BitkiHastalik modelinde tarih alanını
-                    henüz görmedik.
-                */
-
-                document.getElementById(
-                    "hastalikTarihi"
-                ).innerText =
-                    "--";
 
 
                 const durum =
@@ -1242,25 +1346,30 @@
                     "small-box text-bg-warning";
 
             }
+
             catch (error) {
 
-                loading.classList.add("d-none");
+                loading.classList.add(
+                    "d-none"
+                );
 
-                hata.classList.remove("d-none");
+
+                hata.classList.remove(
+                    "d-none"
+                );
+
 
                 hata.innerText =
                     "Hastalık bilgileri alınamadı: " +
                     hataMesaji(error);
 
             }
+
         }
 
 
 
-        // =========================================================
         // BİLDİRİMLER
-        // =========================================================
-
         async function bildirimleriGetir() {
 
             const alan =
@@ -1271,6 +1380,7 @@
 
             alan.className =
                 "alert alert-info";
+
 
             alan.innerText =
                 "Bildirimler yükleniyor...";
@@ -1292,121 +1402,266 @@
                     alan.className =
                         "alert alert-success";
 
+
                     alan.innerText =
                         "Yeni sistem bildirimi bulunmuyor.";
 
+
                     return;
+
                 }
+
+
+                const sirali =
+                    [...veriler].sort(
+                        function (a, b) {
+
+                            return (
+                                new Date(
+                                    b.bildirimZamani
+                                )
+                                -
+                                new Date(
+                                    a.bildirimZamani
+                                )
+                            );
+
+                        }
+                    );
 
 
                 alan.className =
                     "alert alert-warning";
 
+
                 alan.innerHTML =
                     "";
 
 
-                veriler
-                    .slice(-5)
-                    .reverse()
-                    .forEach(function (bildirim) {
+                sirali
+                    .slice(0, 5)
+                    .forEach(
+                        function (bildirim) {
 
-                        const satir =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        satir.className =
-                            "border-bottom py-2";
-
-
-                        const mesaj =
-                            document.createElement(
-                                "strong"
-                            );
-
-
-                        mesaj.innerText =
-                            bildirim.mesaj ??
-                            "Sistem bildirimi";
-
-
-                        satir.appendChild(
-                            mesaj
-                        );
-
-
-                        const bildirimTarihi =
-                            bildirim.tarih ??
-                            bildirim.olusturmaTarihi ??
-                            bildirim.kayitZamani;
-
-
-                        if (bildirimTarihi) {
-
-                            const tarih =
+                            const satir =
                                 document.createElement(
-                                    "small"
+                                    "div"
                                 );
 
 
-                            tarih.className =
-                                "d-block text-muted";
+                            satir.className =
+                                "border-bottom py-2";
 
 
-                            tarih.innerText =
-                                tarihGoster(
-                                    bildirimTarihi
+                            const mesaj =
+                                document.createElement(
+                                    "strong"
                                 );
+
+
+                            mesaj.innerText =
+                                bildirim.mesaj ??
+                                "Sistem bildirimi";
 
 
                             satir.appendChild(
-                                tarih
+                                mesaj
                             );
+
+
+                            if (
+                                bildirim.bildirimZamani
+                            ) {
+
+                                const tarih =
+                                    document.createElement(
+                                        "small"
+                                    );
+
+
+                                tarih.className =
+                                    "d-block text-muted";
+
+
+                                tarih.innerText =
+                                    tarihGoster(
+                                        bildirim.bildirimZamani
+                                    );
+
+
+                                satir.appendChild(
+                                    tarih
+                                );
+
+                            }
+
+
+                            alan.appendChild(
+                                satir
+                            );
+
                         }
-
-
-                        alan.appendChild(
-                            satir
-                        );
-
-                    });
+                    );
 
             }
+
             catch (error) {
 
                 alan.className =
                     "alert alert-danger";
+
 
                 alan.innerText =
                     "Bildirimler alınamadı: " +
                     hataMesaji(error);
 
             }
+
         }
 
 
 
-        // =========================================================
-        // SAYFA AÇILDIĞINDA
-        // =========================================================
+        // SIGNALR
+        const seraConnection =
+            new signalR.HubConnectionBuilder()
 
+                .withUrl(
+                    `${API_BASE_URL}/serahub`
+                )
+
+                .withAutomaticReconnect()
+
+                .build();
+
+
+
+        // CANLI TELEMETRY
+        seraConnection.on(
+            "ReceiveTelemetry",
+            function (veri) {
+
+                console.log(
+                    "Canlı Telemetry:",
+                    veri
+                );
+
+
+                sensorKartlariniGuncelle(
+                    veri.temperature,
+                    veri.humidity,
+                    veri.soilMoisture
+                );
+
+
+                canliVeriyiGrafigeEkle(
+                    veri
+                );
+
+
+                document.getElementById(
+                    "sensorYukleniyor"
+                ).classList.add(
+                    "d-none"
+                );
+
+
+                document.getElementById(
+                    "sensorHata"
+                ).classList.add(
+                    "d-none"
+                );
+
+            }
+        );
+
+
+
+        // CANLI BİTKİ ANALİZİ
+        seraConnection.on(
+            "ReceivePlantAnalysis",
+            function (veri) {
+
+                console.log(
+                    "Yeni bitki analizi:",
+                    veri
+                );
+
+
+                // Hastalık ve bildirim kayıtları
+                // AnalizController tarafından DB'ye
+                // kaydedildikten sonra tekrar çekilir.
+
+                hastalikVerileriniGetir();
+
+                bildirimleriGetir();
+
+            }
+        );
+
+
+
+        // SIGNALR BAŞLAT
+        async function signalRBaslat() {
+
+            try {
+
+                await seraConnection.start();
+
+
+                console.log(
+                    "Ana sayfa SignalR bağlantısı kuruldu."
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "SignalR bağlantı hatası:",
+                    error
+                );
+
+
+                setTimeout(
+                    signalRBaslat,
+                    5000
+                );
+
+            }
+
+        }
+
+
+
+        seraConnection.onreconnected(
+            function () {
+
+                sensorVerileriniGetir();
+
+                hastalikVerileriniGetir();
+
+                bildirimleriGetir();
+
+            }
+        );
+
+
+
+        // SAYFA BAŞLANGICI
         async function sayfayiBaslat() {
 
-            // Geçmiş sensör verileri
             await sensorVerileriniGetir();
 
-            // SignalR canlı bağlantı
-            await signalRBaslat();
+            await cihazDurumunuGetir();
 
-            // Diğer API verileri
             ilaclamaVerileriniGetir();
+
             hastalikVerileriniGetir();
+
             bildirimleriGetir();
 
-            // ESP32 online/offline
-            cihazDurumunuGetir();
+            await signalRBaslat();
+
         }
 
 
@@ -1414,14 +1669,12 @@
 
 
 
-        // =========================================================
-        // SADECE HEALTH DURUMUNU BELİRLİ ARALIKLA KONTROL ET
-        // =========================================================
-
+        // ESP32 HEALTH
         setInterval(
             cihazDurumunuGetir,
             10000
         );
 
     </script>
+
 }
