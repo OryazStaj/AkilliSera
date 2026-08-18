@@ -5,3 +5,4 @@ numpy
 scikit-fuzzy
 opencv-python
 ultralytics
+flask

@@ -2,7 +2,7 @@
 
 Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak veri sözleşmesini ve entegrasyon durumunu takip eder.
 
-> **Son Güncelleme:** 2026-08-17 (Tüm modüller incelendi, eksikler belgelendi)
+> **Son Güncelleme:** 2026-08-18 (Fuzzy Logic + Backend entegrasyonu tamamlandı)
 
 ---
 
@@ -11,9 +11,9 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 | Modül | Durum | Güncel Not |
 |---|:---:|---|
 | **Veritabanı (SQL)** | 🟢 Hazır | `setup-all.ps1` ile boş DB oluşturma ve 7 SQL scriptinin yüklenmesi otomatikleştirildi. |
-| **Backend (.NET 8)** | 🟢 Hazır | `0 Hata` ile derleniyor. Swagger, EF Core, Telemetry ve SignalR (`/serahub`) devrede. |
-| **Frontend (.NET 9)** | 🟡 Kısmi | Razor Pages çalışıyor. Hastalık sayfası `ReceivePlantAnalysis` sinyalini dinlemiyor. Bildirim sayfası eksik. |
-| **AI (Python)** | 🟡 Kısmi | Kamera servisi ve YOLO tespiti çalışıyor. `fuzzy_sistem.py` HTTP API olarak sunulmadı; Backend'e bağlanmıyor. |
+| **Backend (.NET 8)** | 🟢 Hazır | `0 Hata` ile derleniyor. Fuzzy servisi entegre edildi; aktif bitki evresine göre karar üretiyor. |
+| **Frontend (.NET 9)** | 🟡 Kısmi | Razor Pages çalışıyor. `Hastalik.cshtml` SignalR dinleyicisi eksik. Bildirim sayfası yok. `kontrol.cshtml` statik. |
+| **AI (Python)** | 🟢 Hazır | `fuzzy_sistem.py` Flask API olarak çalışıyor. `POST /api/fuzzy/calculate` endpoint aktif. |
 | **ESP32 (C++)** | 🔴 Bağlı Değil | Yanlış endpoint (`/api/sera`), yanlış JSON alanları (`sicaklik`, `nem`), yanıt parse'ı yanlış. |
 
 ---
@@ -33,16 +33,21 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 - [x] `GET /api/Kullanici/liste` şifre bilgisini gizleyerek güvenli döndürüyor.
 - [x] `GET /api/Sensors/history` en yeni kayıtlar üstte olacak şekilde çalışıyor.
 - [x] `GET /api/Bildirim/liste` bildirimleri döndürüyor.
+- [x] `FuzzyIntegrationService` → `TelemetryController`'a inject edildi; aktif bitki evresi DB'den çekilerek Fuzzy API'ye doğru formatta (`bitki + anlikVeriler + zaman`) gönderiliyor.
+- [x] Fuzzy API çevrimdışıysa veya aktif evre tanımlı değilse sabit eşik fallback devreye giriyor.
 
 ### C. Yapay Zeka & Görüntü İşleme
 - [x] `kamera_servisi.py` → IP kamera veya simülasyon modunda görüntü alıyor, `kamera_anlik.jpg` üzerine yazıyor.
 - [x] YOLO modelleri (`model.onnx`, `model_domates.onnx`) görüntüyü analiz edip hastalık ve domates tespiti yapıyor.
 - [x] Analiz sonucu `POST /api/Analiz/goruntu-sonucu` ile Backend'e gönderiliyor (uçtan uca test edildi).
+- [x] `fuzzy_sistem.py` sözdizimi hatası (satır 789 `IndentationError`) ve çift `toprak` Antecedent tanımı giderildi.
+- [x] `fuzzy_sistem.py` Flask HTTP API olarak sarmalandı → `POST http://127.0.0.1:5000/api/fuzzy/calculate` çalışıyor.
+- [x] `requirements.txt`'e `flask` bağımlılığı eklendi.
 
 ### D. Frontend
 - [x] Merkezi `api.js` üzerinden HTTP hata yönetimi bağlandı.
 - [x] `sensorler.cshtml` → `ReceiveTelemetry` SignalR dinleyicisi aktif; kayıtlı veri `Offline` rozetiyle gösteriliyor.
-- [x] `Index.cshtml` → ESP32 canlılık durumu (`/api/Telemetry/health`) gösteriliyor.
+- [x] `Index.cshtml` → ESP32 canlılık durumu (`/api/Telemetry/health`) gösteriliyor; `GET /api/Bildirim/liste` ile bildirim listesi yükleniyor.
 - [x] `grafikler.cshtml` → Geçmiş sensör verileri grafik olarak çiziliyor.
 
 ---
@@ -67,28 +72,17 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 
 ---
 
-### 🤖 Yapay Zeka Ekibi — [`1_AI_Python/Bulanik_Mantik/fuzzy_sistem.py`](1_AI_Python/Bulanik_Mantik/fuzzy_sistem.py)
-
-- [ ] **`fuzzy_sistem.py` HTTP API olarak sarmalanmalı (Flask/FastAPI):**
-  - Şu an script düz `print()` ile çalışıyor; Backend'den HTTP isteği alamıyor.
-  - `POST http://127.0.0.1:5000/api/fuzzy/calculate` endpoint'i oluşturulmalı.
-  - Backend `FuzzyIntegrationService.cs` bu endpoint'e bağlanmaya hazır; Python tarafı eksik.
-
-- [ ] **`requirements.txt` güncellenmeli:**
-  - `flask` veya `fastapi` + `uvicorn` bağımlılıkları eklenmeli.
-
----
-
 ### 🌐 Frontend Ekibi — [`4_Frontend_Web/Pages/`](4_Frontend_Web/Pages/)
 
 - [ ] **`Hastalik.cshtml` sayfasına `ReceivePlantAnalysis` SignalR dinleyicisi eklenmeli:**
   - Kamera analizi geldiğinde sayfa yenilenmeden yeni hastalık satırları tabloya eklenmiyor.
 
 - [ ] **Bildirim sayfası eksik:**
-  - Backend `GET /api/Bildirim/liste` çalışıyor; Frontend'de bildirimleri gösteren sayfa yok.
+  - Backend `GET /api/Bildirim/liste` çalışıyor; Frontend'de bildirimleri gösteren ayrı bir sayfa (`Bildirim.cshtml`) yok.
+  - Not: `Index.cshtml` ana sayfada bildirim listesi kısmen gösteriliyor; bu tam sayfa değil.
 
 - [ ] **`kontrol.cshtml` sayfasında aktüatör (vana/fan/ısıtıcı) durumu dinamik gösterilmeli:**
-  - Şu an sayfa statik; ESP32'den gelen yanıttaki `normalValve`, `fan`, `heater` değerleri gösterilmiyor.
+  - Şu an sayfa statik; `ReceiveTelemetry` SignalR olayıyla gelen `normalValve`, `fan`, `heater` değerleri gösterilmiyor.
 
 ---
 
@@ -131,12 +125,32 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 ```
 
 ### Bulanık Mantık Sözleşmesi (`POST http://127.0.0.1:5000/api/fuzzy/calculate`):
+
+**İstek (Backend → Python):**
 ```json
 {
+  "bitki": {
+    "bitkiAdi": "Domates",
+    "evreAdi": "Vejetatif",
+    "minToprakNemi": 45, "maxToprakNemi": 70,
+    "minOrtamNemi": 60,  "maxOrtamNemi": 80,
+    "gunduzMinSicaklik": 20, "gunduzMaxSicaklik": 28,
+    "geceMinSicaklik": 16,   "geceMaxSicaklik": 20
+  },
+  "anlikVeriler": { "toprakNemi": 38, "ortamNemi": 45, "sicaklik": 31 },
+  "zaman": { "saat": 14 }
+}
+```
+
+**Yanıt (Python → Backend):**
+```json
+{
+  "bitki": "Domates",
+  "evre": "Vejetatif",
   "kararlar": {
-    "sulama": { "sure": 12.5, "karar": "Uzun Sulama" },
-    "havalandirma": { "seviye": 75.0, "karar": "Yüksek" },
-    "isitma": { "seviye": 22.0, "karar": "Ilık" }
+    "sulama":      { "sure": 22.78, "karar": "fazla sulama" },
+    "havalandirma":{ "seviye": 50.0, "karar": "orta fan" },
+    "isitma":      { "seviye": 20.0, "karar": "isi_dusur" }
   }
 }
 ```
@@ -149,7 +163,8 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 2. [x] Backend ayağa kalktığında Swagger üzerinden `POST /api/Telemetry` ile veri basılabilmesi.
 3. [x] Veritabanına kaydın yazıldığının `GET /api/Sensors/history` ile doğrulanması.
 4. [x] `kamera_servisi.py` çalıştırıldığında analiz sonucunun `POST /api/Analiz/goruntu-sonucu` ile veritabanına kaydedilmesi.
-5. [ ] ESP32 donanımının düzeltilmiş endpoint ile yerel ağ üzerinden Backend'e veri iletmesi.
-6. [ ] `fuzzy_sistem.py` Flask/FastAPI ile sarmalandıktan sonra Backend'in bulanık mantık kararlarını alması.
-7. [ ] `Hastalik.cshtml` sayfasının yeni kamera analizi geldiğinde SignalR ile anlık güncellenmesi.
-
+5. [x] `fuzzy_sistem.py` Flask API olarak ayağa kaldırıldığında `POST /api/fuzzy/calculate` endpoint'inin doğru JSON döndürmesi. *(Yerel test edildi: sulama=22.78sn, fan=%50, ısıtma=isi_dusur)*
+6. [x] Backend'in Fuzzy API'yi çağırıp `normalValve/fan/heater` kararlarını Fuzzy çıktısına göre üretmesi. *(Derleme doğrulandı: 0 Hata)*
+7. [ ] ESP32 donanımının düzeltilmiş endpoint ile yerel ağ üzerinden Backend'e veri iletmesi.
+8. [ ] `Hastalik.cshtml` sayfasının yeni kamera analizi geldiğinde SignalR ile anlık güncellenmesi.
+9. [ ] `kontrol.cshtml` sayfasının aktüatör durumunu `ReceiveTelemetry` ile dinamik göstermesi.

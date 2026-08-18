@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using AkilliSera_API.Hubs;
@@ -21,17 +21,20 @@ public class TelemetryController : ControllerBase
     private readonly HealthCheckService _healthCheckService;
     private readonly AkilliSeraDbContext _context;
     private readonly ILogger<TelemetryController> _logger;
+    private readonly FuzzyIntegrationService _fuzzyService;
 
     public TelemetryController(
         IHubContext<SeraHub> seraHub,
         HealthCheckService healthCheckService,
         AkilliSeraDbContext context,
-        ILogger<TelemetryController> logger)
+        ILogger<TelemetryController> logger,
+        FuzzyIntegrationService fuzzyService)
     {
         _seraHub = seraHub;
         _healthCheckService = healthCheckService;
         _context = context;
         _logger = logger;
+        _fuzzyService = fuzzyService;
     }
 
     /// <summary>
@@ -81,24 +84,85 @@ public class TelemetryController : ControllerBase
             return StatusCode(500, new { message = "Veritabanı kayıt hatası oluştu.", detail = ex.Message });
         }
 
-        // 4. Sadece DB'ye Başarıyla Kaydedilen Veriyi SignalR ile Yayınla
+        // 4. Fuzzy Mantık ile Aktüatör Kararı
+        bool normalValve, fan, heater;
+
+        try
+        {
+            // Seraya ait aktif bitki evresini DB'den çek
+            var sera = await _context.SeraDurums
+                .Include(s => s.AktifEvre)
+                .FirstOrDefaultAsync(s => s.SeraId == effectiveSeraId);
+
+            var aktifEvre = sera?.AktifEvre;
+
+            if (aktifEvre != null)
+            {
+                // Aktif evre varsa Fuzzy API'yi çağır
+                var fuzzyKarar = await _fuzzyService.ProcessAndRouteAsync(
+                    aktifEvre,
+                    effectiveSoil,
+                    effectiveHumidity,
+                    effectiveTemp,
+                    kayitZamani.Hour
+                );
+
+                if (fuzzyKarar != null)
+                {
+                    // Fuzzy kararını aktüatör komutuna dönüştür
+                    normalValve = fuzzyKarar.SulamaSuresi >= 5.0;
+                    fan         = fuzzyKarar.FanSeviyesi  >= 30.0;
+                    heater      = fuzzyKarar.IsitmaKararMetni == "isi_yukselt";
+
+                    _logger.LogInformation(
+                        "Fuzzy karar alındı: sulama={Sulama}sn, fan=%{Fan}, isitma={Isitma}",
+                        fuzzyKarar.SulamaSuresi, fuzzyKarar.FanSeviyesi, fuzzyKarar.IsitmaKararMetni);
+                }
+                else
+                {
+                    // Fuzzy API cevap vermediyse sabit eşiğe geri dön
+                    _logger.LogWarning("Fuzzy API yanıt vermedi, sabit eşik kullanılıyor.");
+                    normalValve = effectiveSoil < 30.0;
+                    fan         = effectiveTemp > 32.0;
+                    heater      = effectiveTemp < 15.0;
+                }
+            }
+            else
+            {
+                // Aktif evre tanımlı değilse sabit eşiğe geri dön
+                _logger.LogWarning("Sera {SeraId} için aktif bitki evresi bulunamadı, sabit eşik kullanılıyor.", effectiveSeraId);
+                normalValve = effectiveSoil < 30.0;
+                fan         = effectiveTemp > 32.0;
+                heater      = effectiveTemp < 15.0;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fuzzy servisi hatası sistemi durdurmasın, sabit eşiğe geri dön
+            _logger.LogError(ex, "Fuzzy karar sürecinde hata oluştu, sabit eşik kullanılıyor.");
+            normalValve = effectiveSoil < 30.0;
+            fan         = effectiveTemp > 32.0;
+            heater      = effectiveTemp < 15.0;
+        }
+
+        // 5. Sadece DB'ye Başarıyla Kaydedilen Veriyi SignalR ile Yayınla
         await _seraHub.Clients.All.SendAsync("ReceiveTelemetry", new
         {
-            sectionId = effectiveSeraId,
-            temperature = effectiveTemp,
-            humidity = effectiveHumidity,
+            sectionId    = effectiveSeraId,
+            temperature  = effectiveTemp,
+            humidity     = effectiveHumidity,
             soilMoisture = effectiveSoil,
-            recordedAt = kayitZamani.ToString("o")
+            recordedAt   = kayitZamani.ToString("o")
         });
 
-        // 5. ESP32 için Aktüatör Yanıtı
+        // 6. ESP32 için Aktüatör Yanıtı
         return Ok(new
         {
-            message = "Telemetri başarıyla kaydedildi ve yayınlandı.",
-            normalValve = effectiveSoil < 30.0,
+            message        = "Telemetri başarıyla kaydedildi ve yayınlandı.",
+            normalValve    = normalValve,
             treatmentValve = false,
-            fan = effectiveTemp > 32.0,
-            heater = effectiveTemp < 15.0
+            fan            = fan,
+            heater         = heater
         });
     }
 

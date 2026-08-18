@@ -25,7 +25,7 @@ function Check-Command($cmd, $name) {
 # ----------------------------------------------------
 # 1. AI Python Bağımlılıkları
 # ----------------------------------------------------
-Step "1. AI Python Bagimliliklari (numpy, scikit-fuzzy, opencv, ultralytics)"
+Step "1. AI Python Bagimliliklari (numpy, scikit-fuzzy, opencv, ultralytics, flask)"
 if (Check-Command "python" "Python") {
     $pythonReq = "1_AI_Python/requirements.txt"
     if (Test-Path $pythonReq) {
@@ -45,6 +45,42 @@ if (Check-Command "python" "Python") {
     }
 } else {
     $stepSuccess["AI_Python"] = $false
+}
+
+# ----------------------------------------------------
+# 1b. Bulanik Mantik (Fuzzy) Servis Dogrulama
+# ----------------------------------------------------
+Step "1b. Bulanik Mantik (Fuzzy) Servis Dogrulama"
+if ($stepSuccess["AI_Python"]) {
+    $fuzzyScript = "1_AI_Python/Bulanik_Mantik/fuzzy_sistem.py"
+    if (Test-Path $fuzzyScript) {
+        # Syntax kontrolu
+        $syntaxCheck = python -c "import py_compile; py_compile.compile('$fuzzyScript', doraise=True); print('OK')" 2>&1
+        if ($syntaxCheck -match "OK") {
+            Write-Host "fuzzy_sistem.py syntax kontrolu gecti." -ForegroundColor Green
+            # Flask kurulu mu?
+            $flaskCheck = python -c "import flask; print('flask OK')" 2>&1
+            if ($flaskCheck -match "flask OK") {
+                Write-Host "Flask kurulu ve hazir." -ForegroundColor Green
+                Write-Host "[BILGI] Fuzzy API'yi baslatmak icin:" -ForegroundColor Yellow
+                Write-Host "        python $fuzzyScript" -ForegroundColor DarkGray
+                Write-Host "        Adres: http://127.0.0.1:5000/api/fuzzy/calculate" -ForegroundColor DarkGray
+                $stepSuccess["Fuzzy_API"] = $true
+            } else {
+                Write-Warning "Flask modulu bulunamadi. 'pip install flask' calistirin."
+                $stepSuccess["Fuzzy_API"] = $false
+            }
+        } else {
+            Write-Warning "fuzzy_sistem.py icinde syntax hatasi var: $syntaxCheck"
+            $stepSuccess["Fuzzy_API"] = $false
+        }
+    } else {
+        Write-Warning "$fuzzyScript bulunamadi."
+        $stepSuccess["Fuzzy_API"] = $false
+    }
+} else {
+    Write-Warning "AI Python adimi basarisiz oldugu icin Fuzzy dogrulama atlandi."
+    $stepSuccess["Fuzzy_API"] = $false
 }
 
 # ----------------------------------------------------
