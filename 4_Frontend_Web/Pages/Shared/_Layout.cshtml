@@ -53,8 +53,89 @@
                 </ul>
 
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
 
+                    <!-- BİLDİRİM ZİLİ -->
+                    <li class="nav-item dropdown">
+
+                        <a class="nav-link position-relative"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+
+                            <i class="fas fa-bell fa-lg"></i>
+
+                            <!-- OKUNMAMIŞ BİLDİRİM SAYISI -->
+                            <span id="navbarBildirimSayisi"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+
+                                0
+
+                            </span>
+
+                        </a>
+
+
+                        <!-- AÇILIR BİLDİRİM KUTUSU -->
+                        <div class="dropdown-menu dropdown-menu-end shadow"
+                             style="width: 360px; max-height: 430px; overflow-y: auto;">
+
+                            <div class="px-3 py-2 border-bottom">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <strong>
+                                        <i class="fas fa-bell me-1"></i>
+                                        Bildirimler
+                                    </strong>
+
+                                    <span id="navbarYeniYazi"
+                                          class="badge bg-danger d-none">
+
+                                        0 yeni
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- BİLDİRİMLER BURAYA GELECEK -->
+                            <div id="navbarBildirimListesi">
+
+                                <div class="text-center text-muted py-4">
+
+                                    <i class="fas fa-spinner fa-spin me-1"></i>
+
+                                    Yükleniyor...
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- TÜM BİLDİRİMLER -->
+                            <div class="border-top text-center">
+
+                                <a asp-page="/bildirimler"
+                                   class="dropdown-item py-2 fw-semibold">
+
+                                    Tüm Bildirimleri Gör
+
+                                    <i class="fas fa-arrow-right ms-1"></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </li>
+
+
+                    <!-- KULLANICI -->
                     <li class="nav-item">
 
                         <a asp-page="/Giris"
@@ -69,7 +150,6 @@
                     </li>
 
                 </ul>
-
 
             </div>
 
@@ -163,26 +243,6 @@
 
                         </li>
 
-
-
-                        <!-- KONTROL -->
-                        <li class="nav-item">
-
-                            <a asp-page="/Kontrol"
-                               class="nav-link">
-
-                                <i class="nav-icon fas fa-sliders"></i>
-
-                                <p>
-                                    Kontrol
-                                </p>
-
-                            </a>
-
-                        </li>
-
-
-
                         <!-- İLAÇLAMA -->
                         <li class="nav-item">
 
@@ -217,7 +277,21 @@
 
                         </li>
 
+                        <!-- BİLDİRİMLER -->
+                        <li class="nav-item">
 
+                            <a asp-page="/Bildirimler"
+                               class="nav-link">
+
+                                <i class="nav-icon fas fa-bell"></i>
+
+                                <p>
+                                    Bildirimler
+                                </p>
+
+                            </a>
+
+                        </li>
 
                         <!-- BİTKİ EVRELERİ -->
                         <li class="nav-item">
@@ -302,7 +376,9 @@
 
 
 
-    <!-- JS -->
+    <!-- ====================================================== -->
+    <!-- JAVASCRIPT BAĞLANTILARI -->
+    <!-- ====================================================== -->
     <!-- BOOTSTRAP -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
     </script>
@@ -318,7 +394,467 @@
     </script>
 
 
-    <!-- INDEX VE DİĞER SAYFALARIN SCRIPT KISMI -->
+    <!-- SIGNALR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js">
+    </script>
+
+
+
+    <!-- ====================================================== -->
+    <!-- NAVBAR BİLDİRİMLERİ -->
+    <!-- ====================================================== -->
+
+    <script>
+
+        // =====================================================
+        // NAVBAR BİLDİRİMLERİNİ GETİR
+        // =====================================================
+
+        async function navbarBildirimleriGetir() {
+
+            const sayiRozeti =
+                document.getElementById(
+                    "navbarBildirimSayisi"
+                );
+
+            const yeniYazi =
+                document.getElementById(
+                    "navbarYeniYazi"
+                );
+
+            const liste =
+                document.getElementById(
+                    "navbarBildirimListesi"
+                );
+
+
+            // Navbar bildirim elemanları olmayan bir sayfadaysak hata verme
+            if (
+                !sayiRozeti ||
+                !yeniYazi ||
+                !liste
+            ) {
+                return;
+            }
+
+
+            try {
+
+                // GERÇEK BACKEND API
+                const veriler =
+                    await apiGet(
+                        "/api/Bildirim/liste"
+                    );
+
+
+                console.log(
+                    "Navbar bildirimleri:",
+                    veriler
+                );
+
+
+                if (!Array.isArray(veriler)) {
+
+                    liste.innerHTML = `
+
+                        <div class="text-center text-danger py-3">
+
+                            Bildirim verisi alınamadı.
+
+                        </div>
+
+                    `;
+
+                    return;
+                }
+
+
+
+                // =================================================
+                // EN YENİ BİLDİRİMLER ÜSTTE
+                // =================================================
+
+                veriler.sort(
+                    function (a, b) {
+
+                        return (
+                            new Date(
+                                b.bildirimZamani
+                            )
+                            -
+                            new Date(
+                                a.bildirimZamani
+                            )
+                        );
+
+                    }
+                );
+
+
+
+                // =================================================
+                // OKUNMAMIŞ BİLDİRİM SAYISI
+                // =================================================
+
+                const okunmamislar =
+                    veriler.filter(
+                        function (veri) {
+
+                            return (
+                                veri.okunduBilgisi !== true
+                            );
+
+                        }
+                    );
+
+
+                const okunmamisSayisi =
+                    okunmamislar.length;
+
+
+
+                if (okunmamisSayisi > 0) {
+
+                    sayiRozeti.innerText =
+                        okunmamisSayisi > 99
+                            ? "99+"
+                            : okunmamisSayisi;
+
+
+                    sayiRozeti.classList.remove(
+                        "d-none"
+                    );
+
+
+                    yeniYazi.innerText =
+                        okunmamisSayisi +
+                        " yeni";
+
+
+                    yeniYazi.classList.remove(
+                        "d-none"
+                    );
+
+                }
+                else {
+
+                    sayiRozeti.classList.add(
+                        "d-none"
+                    );
+
+
+                    yeniYazi.classList.add(
+                        "d-none"
+                    );
+
+                }
+
+
+
+                // =================================================
+                // BİLDİRİM YOKSA
+                // =================================================
+
+                if (veriler.length === 0) {
+
+                    liste.innerHTML = `
+
+                        <div class="text-center text-muted py-4">
+
+                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+
+                            <div>
+                                Bildirim bulunmuyor.
+                            </div>
+
+                        </div>
+
+                    `;
+
+                    return;
+                }
+
+
+
+                // =================================================
+                // SON 5 BİLDİRİM
+                // =================================================
+
+                liste.innerHTML =
+                    "";
+
+
+                veriler
+                    .slice(0, 5)
+                    .forEach(
+                        function (veri) {
+
+                            const okunmus =
+                                veri.okunduBilgisi === true;
+
+
+                            let tarih =
+                                "--";
+
+
+                            if (veri.bildirimZamani) {
+
+                                const tarihNesnesi =
+                                    new Date(
+                                        veri.bildirimZamani
+                                    );
+
+
+                                if (
+                                    !isNaN(
+                                        tarihNesnesi.getTime()
+                                    )
+                                ) {
+
+                                    tarih =
+                                        tarihNesnesi.toLocaleString(
+                                            "tr-TR",
+                                            {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                hour: "2-digit",
+                                                minute: "2-digit"
+                                            }
+                                        );
+
+                                }
+
+                            }
+
+
+                            const div =
+                                document.createElement(
+                                    "div"
+                                );
+
+
+                            div.className =
+                                "px-3 py-3 border-bottom " +
+                                (
+                                    okunmus
+                                        ? ""
+                                        : "bg-danger-subtle"
+                                );
+
+
+                            div.innerHTML = `
+
+                                <div class="d-flex gap-2">
+
+                                    <div>
+
+                                        <i class="fas ${
+                                            okunmus
+                                                ? "fa-check-circle text-success"
+                                                : "fa-bell text-danger"
+                                        }"></i>
+
+                                    </div>
+
+
+                                    <div class="flex-grow-1">
+
+                                        <div class="${
+                                            okunmus
+                                                ? ""
+                                                : "fw-bold"
+                                        }">
+
+                                            ${
+                                                veri.mesaj ??
+                                                "Bildirim"
+                                            }
+
+                                        </div>
+
+
+                                        <small class="text-muted">
+
+                                            <i class="far fa-clock me-1"></i>
+
+                                            ${tarih}
+
+                                        </small>
+
+                                    </div>
+
+
+                                    ${
+                                        okunmus
+                                            ? ""
+                                            :
+                                            `
+                                            <span class="badge bg-danger align-self-start">
+                                                Yeni
+                                            </span>
+                                            `
+                                    }
+
+                                </div>
+
+                            `;
+
+
+                            liste.appendChild(
+                                div
+                            );
+
+                        }
+                    );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Navbar bildirim API hatası:",
+                    error
+                );
+
+
+                sayiRozeti.classList.add(
+                    "d-none"
+                );
+
+
+                yeniYazi.classList.add(
+                    "d-none"
+                );
+
+
+                liste.innerHTML = `
+
+                    <div class="text-center text-danger py-3">
+
+                        <i class="fas fa-triangle-exclamation me-1"></i>
+
+                        Bildirimler alınamadı.
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // NAVBAR SIGNALR
+        // =====================================================
+
+        const navbarConnection =
+            new signalR.HubConnectionBuilder()
+
+                .withUrl(
+                    `${API_BASE_URL}/serahub`
+                )
+
+                .withAutomaticReconnect()
+
+                .build();
+
+
+
+        // =====================================================
+        // YENİ BİTKİ ANALİZİ GELDİĞİNDE
+        // =====================================================
+
+        navbarConnection.on(
+            "ReceivePlantAnalysis",
+            function (veri) {
+
+                console.log(
+                    "Yeni bitki analizi geldi:",
+                    veri
+                );
+
+
+                // AnalizController hastalık tespitinde
+                // Bildirim tablosuna kayıt oluşturduğu için
+                // bildirimleri tekrar çekiyoruz.
+
+                navbarBildirimleriGetir();
+
+            }
+        );
+
+
+
+        // =====================================================
+        // SIGNALR BAŞLAT
+        // =====================================================
+
+        async function navbarSignalRBaslat() {
+
+            try {
+
+                await navbarConnection.start();
+
+
+                console.log(
+                    "Navbar SignalR bağlantısı kuruldu."
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Navbar SignalR bağlantı hatası:",
+                    error
+                );
+
+
+                setTimeout(
+                    navbarSignalRBaslat,
+                    5000
+                );
+
+            }
+
+        }
+
+
+
+        // =====================================================
+        // SIGNALR TEKRAR BAĞLANDIĞINDA
+        // =====================================================
+
+        navbarConnection.onreconnected(
+            function () {
+
+                console.log(
+                    "Navbar SignalR tekrar bağlandı."
+                );
+
+
+                navbarBildirimleriGetir();
+
+            }
+        );
+
+
+
+        // =====================================================
+        // SAYFA AÇILDIĞINDA
+        // =====================================================
+
+        navbarBildirimleriGetir();
+
+        navbarSignalRBaslat();
+
+    </script>
+
+
+
+    <!-- ====================================================== -->
+    <!-- INDEX VE DİĞER SAYFALARIN KENDİ SCRIPT KISMI -->
+    <!-- ====================================================== -->
     @await RenderSectionAsync("Scripts", required: false)
 
 
