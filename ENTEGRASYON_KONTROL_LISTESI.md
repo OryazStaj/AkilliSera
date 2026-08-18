@@ -12,9 +12,9 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 |---|:---:|---|
 | **Veritabanı (SQL)** | 🟢 Hazır | `setup-all.ps1` ile boş DB oluşturma ve 7 SQL scriptinin yüklenmesi otomatikleştirildi. |
 | **Backend (.NET 8)** | 🟢 Hazır | `0 Hata` ile derleniyor. Fuzzy servisi entegre edildi; aktif bitki evresine göre karar üretiyor. |
-| **Frontend (.NET 9)** | 🟡 Kısmi | Razor Pages çalışıyor. `Hastalik.cshtml` SignalR dinleyicisi eksik. Bildirim sayfası yok. `kontrol.cshtml` statik. |
+| **Frontend (.NET 9)** | 🟢 Hazır | `0 Hata` ile derleniyor. AdminLTE teması, Bildirimler sayfası, Hastalık SignalR ve Sensör aktüatörleri dinamik bağlandı. |
 | **AI (Python)** | 🟢 Hazır | `fuzzy_sistem.py` Flask API olarak çalışıyor. `POST /api/fuzzy/calculate` endpoint aktif. |
-| **ESP32 (C++)** | 🔴 Bağlı Değil | Yanlış endpoint (`/api/sera`), yanlış JSON alanları (`sicaklik`, `nem`), yanıt parse'ı yanlış. |
+| **ESP32 (C++)** | 🔴 Beklemede | Yanlış endpoint (`/api/sera`), yanlış JSON alanları (`sicaklik`, `nem`), yanıt parse'ı yanlış. |
 
 ---
 
@@ -46,9 +46,12 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 
 ### D. Frontend
 - [x] Merkezi `api.js` üzerinden HTTP hata yönetimi bağlandı.
-- [x] `sensorler.cshtml` → `ReceiveTelemetry` SignalR dinleyicisi aktif; kayıtlı veri `Offline` rozetiyle gösteriliyor.
-- [x] `Index.cshtml` → ESP32 canlılık durumu (`/api/Telemetry/health`) gösteriliyor; `GET /api/Bildirim/liste` ile bildirim listesi yükleniyor.
+- [x] `sensorler.cshtml` → `ReceiveTelemetry` SignalR dinleyicisi aktif; canlı/kayıtlı veri ayrımı ve aktüatör kartları (sulama/fan/ısıtıcı) dinamik bağlandı.
+- [x] `Index.cshtml` → ESP32 canlılık durumu (`/api/Telemetry/health`) ve bildirim özeti gösteriliyor.
+- [x] `bildirimler.cshtml` → Tüm sistem bildirimlerini listeleyen, okundu durumunu gösteren yeni sayfa eklendi ve navbar bildirim zili entegre edildi.
+- [x] `Hastalik.cshtml` → `ReceivePlantAnalysis` SignalR dinleyicisi eklendi; kamera analizi geldiğinde tabloyu anlık yeniliyor.
 - [x] `grafikler.cshtml` → Geçmiş sensör verileri grafik olarak çiziliyor.
+- [x] Statik `kontrol.cshtml` kaldırılarak kontroller sensör sayfasına taşındı.
 
 ---
 
@@ -73,16 +76,9 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 ---
 
 ### 🌐 Frontend Ekibi — [`4_Frontend_Web/Pages/`](4_Frontend_Web/Pages/)
-
-- [ ] **`Hastalik.cshtml` sayfasına `ReceivePlantAnalysis` SignalR dinleyicisi eklenmeli:**
-  - Kamera analizi geldiğinde sayfa yenilenmeden yeni hastalık satırları tabloya eklenmiyor.
-
-- [ ] **Bildirim sayfası eksik:**
-  - Backend `GET /api/Bildirim/liste` çalışıyor; Frontend'de bildirimleri gösteren ayrı bir sayfa (`Bildirim.cshtml`) yok.
-  - Not: `Index.cshtml` ana sayfada bildirim listesi kısmen gösteriliyor; bu tam sayfa değil.
-
-- [ ] **`kontrol.cshtml` sayfasında aktüatör (vana/fan/ısıtıcı) durumu dinamik gösterilmeli:**
-  - Şu an sayfa statik; `ReceiveTelemetry` SignalR olayıyla gelen `normalValve`, `fan`, `heater` değerleri gösterilmiyor.
+- [x] **`Hastalik.cshtml` sayfasına `ReceivePlantAnalysis` SignalR dinleyicisi eklendi:** Kamera analizi yapıldığında hastalık listesi otomatik yenileniyor.
+- [x] **Bildirim sayfası (`bildirimler.cshtml`) eklendi:** Okunmamış sayaç rozeti ve navbar bildirim menüsü bağlandı.
+- [x] **Aktüatör durumları (`sensorler.cshtml`) dinamik hale getirildi:** `ReceiveTelemetry` ile gelen sulama, fan ve ısıtıcı durumları kartlarda canlı gösteriliyor. Eski statik `kontrol.cshtml` kaldırıldı.
 
 ---
 
@@ -166,5 +162,5 @@ Bu belge; Frontend, Backend, ESP32, Yapay Zeka ve Veritabanı ekiplerinin ortak 
 5. [x] `fuzzy_sistem.py` Flask API olarak ayağa kaldırıldığında `POST /api/fuzzy/calculate` endpoint'inin doğru JSON döndürmesi. *(Yerel test edildi: sulama=22.78sn, fan=%50, ısıtma=isi_dusur)*
 6. [x] Backend'in Fuzzy API'yi çağırıp `normalValve/fan/heater` kararlarını Fuzzy çıktısına göre üretmesi. *(Derleme doğrulandı: 0 Hata)*
 7. [ ] ESP32 donanımının düzeltilmiş endpoint ile yerel ağ üzerinden Backend'e veri iletmesi.
-8. [ ] `Hastalik.cshtml` sayfasının yeni kamera analizi geldiğinde SignalR ile anlık güncellenmesi.
-9. [ ] `kontrol.cshtml` sayfasının aktüatör durumunu `ReceiveTelemetry` ile dinamik göstermesi.
+8. [x] `Hastalik.cshtml` sayfasının yeni kamera analizi geldiğinde SignalR ile anlık güncellenmesi.
+9. [x] `sensorler.cshtml` sayfasının aktüatör durumunu `ReceiveTelemetry` ile dinamik göstermesi.
