@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using AkilliSera_API.Models;
 using AkilliSera_API.Services;
 
@@ -27,9 +27,14 @@ namespace AkilliSera_API.Controllers
             {
                 return BadRequest("Geçersiz veya boş veri.");
             }
+            bool basarili = _databaseService.IlaclamaEkle(yeniIlaclama);
+            if (!basarili)
+            {
+                return StatusCode(500, "İlaçlama kaydı veritabanına eklenirken bir hata oluştu.");
+            }
 
-            _databaseService.IlaclamaEkle(yeniIlaclama);
             return Ok(new { message = "İlaçlama kaydı başarıyla eklendi." });
         }
+
     }
 }

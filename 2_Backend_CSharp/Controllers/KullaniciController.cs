@@ -1,4 +1,4 @@
-﻿using AkilliSera_API.Models;
+using AkilliSera_API.Models;
 using AkilliSera_API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,8 +20,16 @@ namespace AkilliSera_API.Controllers
         [HttpGet("liste")]
         public IActionResult GetKullanicilar()
         {
-            var veriler = _databaseService.KullanicilariGetir();
-            return Ok(veriler);
+            var kullanicilar = _databaseService.KullanicilariGetir();
+
+            var guvenliListe = kullanicilar.Select(k => new
+            {
+                Id = k.KullaniciId, 
+                k.Isim,
+                k.Eposta,
+            });
+
+            return Ok(guvenliListe);
         }
 
        

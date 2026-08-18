@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using AkıllıSera.API.Hubs;
-using AkıllıSera.API.Services;
+using Microsoft.EntityFrameworkCore;
+using AkilliSera_API.Hubs;
+using AkilliSera_API.Services;
+using AkilliSera_API.Data;
+using AkilliSera_API.Models;
 
-namespace AkıllıSera.API.Controllers;
+namespace AkilliSera_API.Controllers;
+
 /// <summary>
-/// ESP32 donanımından gelen telemetri verilerini karşılayan,
-/// SignalR üzerinden canlı yayına basan ve aktüatör (röle) kararları üreten denetleyici sınıfı.
+/// ESP32 donanımından gelen telemetri verilerini doğrulayan, 
+/// Sensor_Loglari tablosuna kalıcı kaydeden, SignalR ile canlı yayına basan 
+/// ve aktüatör kararları üreten denetleyici sınıfı.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
@@ -14,53 +19,156 @@ public class TelemetryController : ControllerBase
 {
     private readonly IHubContext<SeraHub> _seraHub;
     private readonly HealthCheckService _healthCheckService;
+    private readonly AkilliSeraDbContext _context;
+    private readonly ILogger<TelemetryController> _logger;
+    private readonly FuzzyIntegrationService _fuzzyService;
 
-    /// <summary>
-    /// Bağımlılıkların (SignalR Hub ve Canlılık Takip Servisi) enjekte edildiği kurucu metot (Constructor).
-    /// </summary>
-    public TelemetryController(IHubContext<SeraHub> seraHub, HealthCheckService healthCheckService)
+    public TelemetryController(
+        IHubContext<SeraHub> seraHub,
+        HealthCheckService healthCheckService,
+        AkilliSeraDbContext context,
+        ILogger<TelemetryController> logger,
+        FuzzyIntegrationService fuzzyService)
     {
         _seraHub = seraHub;
         _healthCheckService = healthCheckService;
+        _context = context;
+        _logger = logger;
+        _fuzzyService = fuzzyService;
     }
 
     /// <summary>
-    /// ESP32 cihazından gelen anlık sensör verilerini karşılar. (POST api/telemetry)
+    /// ESP32'den gelen telemetri verisini kalıcı kaydeder ve canlı yayına iletir. (POST api/telemetry)
     /// </summary>
-    /// <param name="dto">Sıcaklık, nem ve toprak nemi verilerini taşıyan DTO paketi.</param>
-    /// <returns>ESP32'deki rölelerin/vanaların çalışma durumunu belirten karar yanıtı.</returns>
     [HttpPost]
     public async Task<IActionResult> PostTelemetry([FromBody] TelemetryDto dto)
     {
-        if (dto == null) return BadRequest("Veri paketi boş olamaz.");
+        // 1. Girdi Doğrulaması (Validation)
+        if (dto == null)
+            return BadRequest(new { message = "Veri paketi boş olamaz." });
 
-        // 1. ESP32'den veri geldiği için cihazın canlılık nabzını güncelle
+        int effectiveSeraId = dto.SeraId > 0 ? dto.SeraId : dto.SectionId;
+        double effectiveTemp = dto.OrtamSicakligi != 0 ? dto.OrtamSicakligi : dto.Temperature;
+        double effectiveHumidity = dto.OrtamNemi != 0 ? dto.OrtamNemi : dto.Humidity;
+        double effectiveSoil = dto.ToprakNemi != 0 ? dto.ToprakNemi : dto.SoilMoisture;
+
+        if (effectiveSeraId <= 0)
+            return BadRequest(new { message = "Geçersiz sera ID! Pozitif bir seraId gönderilmelidir." });
+
+        if (effectiveHumidity < 0 || effectiveHumidity > 100 || effectiveSoil < 0 || effectiveSoil > 100)
+            return BadRequest(new { message = "Nem değerleri %0 ile %100 arasında olmalıdır." });
+
+        // 2. Cihazın Canlılık Nabzını Güncelle
         _healthCheckService.UpdatePulse();
 
-        // 2. Anlık veriyi SignalR kanalı (SeraHub) üzerinden web/mobil arayüze canlı fırlat
+        // 3. Veritabanına Kalıcı Kayıt Ekle
+        DateTime kayitZamani = DateTime.UtcNow;
+
+        try
+        {
+            var logEntry = new SensorLoglari
+            {
+                SeraId = effectiveSeraId,
+                OrtamSicakligi = (decimal)effectiveTemp,
+                OrtamNemi = (decimal)effectiveHumidity,
+                ToprakNemi = (decimal)effectiveSoil,
+                KayitZamani = kayitZamani
+            };
+
+            await _context.SensorLoglaris.AddAsync(logEntry);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Telemetri verisi veritabanına kaydedilirken hata oluştu!");
+            return StatusCode(500, new { message = "Veritabanı kayıt hatası oluştu.", detail = ex.Message });
+        }
+
+        // 4. Fuzzy Mantık ile Aktüatör Kararı
+        bool normalValve, fan, heater;
+
+        try
+        {
+            // Seraya ait aktif bitki evresini DB'den çek
+            var sera = await _context.SeraDurums
+                .Include(s => s.AktifEvre)
+                .FirstOrDefaultAsync(s => s.SeraId == effectiveSeraId);
+
+            var aktifEvre = sera?.AktifEvre;
+
+            if (aktifEvre != null)
+            {
+                // Aktif evre varsa Fuzzy API'yi çağır
+                var fuzzyKarar = await _fuzzyService.ProcessAndRouteAsync(
+                    aktifEvre,
+                    effectiveSoil,
+                    effectiveHumidity,
+                    effectiveTemp,
+                    kayitZamani.Hour
+                );
+
+                if (fuzzyKarar != null)
+                {
+                    // Fuzzy kararını aktüatör komutuna dönüştür
+                    normalValve = fuzzyKarar.SulamaSuresi >= 5.0;
+                    fan         = fuzzyKarar.FanSeviyesi  >= 30.0;
+                    heater      = fuzzyKarar.IsitmaKararMetni == "isi_yukselt";
+
+                    _logger.LogInformation(
+                        "Fuzzy karar alındı: sulama={Sulama}sn, fan=%{Fan}, isitma={Isitma}",
+                        fuzzyKarar.SulamaSuresi, fuzzyKarar.FanSeviyesi, fuzzyKarar.IsitmaKararMetni);
+                }
+                else
+                {
+                    // Fuzzy API cevap vermediyse sabit eşiğe geri dön
+                    _logger.LogWarning("Fuzzy API yanıt vermedi, sabit eşik kullanılıyor.");
+                    normalValve = effectiveSoil < 30.0;
+                    fan         = effectiveTemp > 32.0;
+                    heater      = effectiveTemp < 15.0;
+                }
+            }
+            else
+            {
+                // Aktif evre tanımlı değilse sabit eşiğe geri dön
+                _logger.LogWarning("Sera {SeraId} için aktif bitki evresi bulunamadı, sabit eşik kullanılıyor.", effectiveSeraId);
+                normalValve = effectiveSoil < 30.0;
+                fan         = effectiveTemp > 32.0;
+                heater      = effectiveTemp < 15.0;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fuzzy servisi hatası sistemi durdurmasın, sabit eşiğe geri dön
+            _logger.LogError(ex, "Fuzzy karar sürecinde hata oluştu, sabit eşik kullanılıyor.");
+            normalValve = effectiveSoil < 30.0;
+            fan         = effectiveTemp > 32.0;
+            heater      = effectiveTemp < 15.0;
+        }
+
+        // 5. Sadece DB'ye Başarıyla Kaydedilen Veriyi SignalR ile Yayınla
         await _seraHub.Clients.All.SendAsync("ReceiveTelemetry", new
         {
-            sectionId = dto.SectionId,
-            temperature = dto.Temperature,
-            humidity = dto.Humidity,
-            soilMoisture = dto.SoilMoisture,
-            recordedAt = DateTime.UtcNow
+            sectionId    = effectiveSeraId,
+            temperature  = effectiveTemp,
+            humidity     = effectiveHumidity,
+            soilMoisture = effectiveSoil,
+            recordedAt   = kayitZamani.ToString("o")
         });
 
-        // 3. Sensör verilerine göre ESP32'nin vanaları/röleleri çalıştırma kararını dön
+        // 6. ESP32 için Aktüatör Yanıtı
         return Ok(new
         {
-            normalValve = dto.SoilMoisture < 30.0,  // Toprak nemi %30 altındaysa su pompasını çalıştır
-            treatmentValve = false,                  // İlaçlama vanası varsayılan kapalı
-            fan = dto.Temperature > 32.0,            // Sıcaklık 32°C üstündeyse fanı çalıştır
-            heater = dto.Temperature < 15.0          // Sıcaklık 15°C altındaysa ısıtıcıyı çalıştır
+            message        = "Telemetri başarıyla kaydedildi ve yayınlandı.",
+            normalValve    = normalValve,
+            treatmentValve = false,
+            fan            = fan,
+            heater         = heater
         });
     }
 
     /// <summary>
-    /// ESP32 cihazının çevrimiçi olup olmadığını kontrol eden uç nokta. (GET api/telemetry/health)
+    /// ESP32 cihazının canlılık durumunu döner. (GET api/telemetry/health)
     /// </summary>
-    /// <returns>Cihazın online durumunu ve son görülme tarihini döner.</returns>
     [HttpGet("health")]
     public IActionResult GetHealthStatus()
     {
@@ -73,10 +181,15 @@ public class TelemetryController : ControllerBase
 }
 
 /// <summary>
-/// ESP32'den gelen JSON veri paketini C# nesnesine dönüştüren Data Transfer Object (DTO) sınıfı.
+/// Telemetri DTO sınıfı
 /// </summary>
 public class TelemetryDto
 {
+    public int SeraId { get; set; }
+    public double OrtamSicakligi { get; set; }
+    public double OrtamNemi { get; set; }
+    public double ToprakNemi { get; set; }
+
     public int SectionId { get; set; }
     public double Temperature { get; set; }
     public double Humidity { get; set; }

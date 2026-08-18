@@ -1,14 +1,16 @@
 """Akıllı Sera görüntü analizi.
 
-Bu modül bir görüntü için backend tarafından tüketilebilecek JSON uyumlu sözlük
-üretir. Ağ isteği yapmaz; backend endpoint'i netleştiğinde çıktıyı HTTP istemcisi
-ile gönderecek katman ayrı eklenmelidir.
+Bu modül bir görüntü için yaprak hastalığı, domates olgunluğu ve bitki evresi
+tespitlerini yapar, JSON uyumlu sözlük üretir ve isteğe bağlı olarak doğrudan
+Backend API'sine (POST /api/Analiz/goruntu-sonucu) gönderir.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import ssl
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -17,10 +19,11 @@ import cv2
 from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 
-
 BASE_DIR = Path(__file__).resolve().parent
 HASTALIK_MODEL_YOLU = BASE_DIR / "model.onnx"
 DOMATES_MODEL_YOLU = BASE_DIR / "model_domates.onnx"
+VARSAYILAN_FOTOGRAF = BASE_DIR / "kamera_anlik.jpg"
+VARSAYILAN_BACKEND_URL = "https://localhost:7266/api/Analiz/goruntu-sonucu"
 VARSAYILAN_GUVEN_ESIGI = 0.30
 
 # CLI çıktısı başka sistemler tarafından doğrudan JSON olarak okunabilsin.
@@ -106,23 +109,52 @@ def akilli_sera_analiz_et(
         aciklama = "Domates veya yaprak/bitki tespiti yapılamadı."
 
     return {
-        "seraId": sera_id,
+        "seraId": sera_id if sera_id is not None else 1,
         "bitkiEvresi": bitki_evresi,
         "yaprakTespitEdildiMi": bool(hastaliklar),
         "domatesTespitEdildiMi": bool(domatesler),
         "hastalikDetaylari": hastaliklar,
         "domatesDetaylari": domatesler,
-        "fotografYolu": str(fotograf),
+        "fotografYolu": fotograf.name,
         "analizZamani": datetime.now(timezone.utc).isoformat(),
         "guvenEsigi": round(guven_esigi * 100, 2),
         "aciklama": aciklama,
     }
 
 
+def backende_gonder(analiz_sonucu: dict[str, Any], url: str = VARSAYILAN_BACKEND_URL) -> bool:
+    """Analiz sonucunu Backend API'sine HTTP POST ile gönderir."""
+    try:
+        veri = json.dumps(analiz_sonucu, ensure_ascii=False).encode("utf-8")
+        istek = urllib.request.Request(
+            url,
+            data=veri,
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            method="POST",
+        )
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        with urllib.request.urlopen(istek, context=ctx, timeout=10) as yanit:
+            cevap = yanit.read().decode("utf-8")
+            print(f"✅ Backend'e başarıyla gönderildi: {cevap}")
+            return True
+    except Exception as e:
+        print(f"⚠️ Backend'e gönderilemedi: {e}")
+        return False
+
+
 def _argumanlari_oku() -> argparse.Namespace:
     ayrac = argparse.ArgumentParser(description="Akıllı Sera görüntü analizi")
-    ayrac.add_argument("fotograf", type=Path, help="Analiz edilecek görüntü")
-    ayrac.add_argument("--sera-id", type=int, default=None, help="İlgili sera ID")
+    ayrac.add_argument(
+        "fotograf",
+        nargs="?",
+        type=Path,
+        default=VARSAYILAN_FOTOGRAF,
+        help=f"Analiz edilecek görüntü (Varsayılan: {VARSAYILAN_FOTOGRAF.name})",
+    )
+    ayrac.add_argument("--sera-id", type=int, default=1, help="İlgili sera ID (Varsayılan: 1)")
     ayrac.add_argument(
         "--guven-esigi",
         type=float,
@@ -134,6 +166,17 @@ def _argumanlari_oku() -> argparse.Namespace:
         type=Path,
         default=None,
         help="JSON sonucunun yazılacağı dosya",
+    )
+    ayrac.add_argument(
+        "--gonder",
+        action="store_true",
+        help="Analiz sonucunu otomatik olarak Backend API'sine POST eder",
+    )
+    ayrac.add_argument(
+        "--url",
+        type=str,
+        default=VARSAYILAN_BACKEND_URL,
+        help=f"Backend endpoint URL (Varsayılan: {VARSAYILAN_BACKEND_URL})",
     )
     return ayrac.parse_args()
 
@@ -154,7 +197,12 @@ def main() -> int:
     if argumanlar.cikti:
         argumanlar.cikti.parent.mkdir(parents=True, exist_ok=True)
         argumanlar.cikti.write_text(sonuc_json + "\n", encoding="utf-8")
+    
     print(sonuc_json)
+
+    if argumanlar.gonder:
+        backende_gonder(sonuc, url=argumanlar.url)
+
     return 0
 
 

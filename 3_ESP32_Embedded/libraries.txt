@@ -1,0 +1,13 @@
+# ESP32 dependency list
+# Install these from Arduino IDE Library Manager / Board Manager.
+
+[Board Manager]
+ESP32 by Espressif Systems
+
+[Libraries]
+ArduinoJson (6.x)
+DHT sensor library by Adafruit
+Adafruit Unified Sensor
+
+# Note:
+# WiFi and HTTPClient are provided by ESP32 core package.

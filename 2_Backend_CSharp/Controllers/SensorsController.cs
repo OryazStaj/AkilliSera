@@ -32,7 +32,12 @@ namespace AkilliSera_API.Controllers
                 return BadRequest("Geçersiz veya boş veri.");
             }
 
-            _databaseService.Verikaydet(yeniVeri);
+            bool basarili = _databaseService.Verikaydet(yeniVeri);
+            if (!basarili)
+            {
+                return StatusCode(500, "Sensör verisi veritabanına kaydedilirken bir hata oluştu.");
+            }
+
             return Ok(new { message = "Sensör verisi başarıyla kaydedildi." });
         }
     }

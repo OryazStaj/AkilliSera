@@ -1,20 +1,19 @@
-﻿namespace AkıllıSera.API.Services;
+﻿namespace AkilliSera_API.Services;
 
 public class HealthCheckService
 {
-
     // Cihazdan alınan en son verinin zamanı
- 
-    private DateTime _lastSeen = DateTime.MinValue;
-    // Cihazın çevrimiçi olup olmadığını belirlemek için kullanılacak zaman aşımı süresi
+    private DateTime? _lastSeen = null;
+
+    // Cihazın çevrimiçi kabul edileceği zaman aşımı süresi (30 saniye)
     private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
 
-    // Cihazdan alınan en son verinin zamanını güncellemek için kullanılan yöntem
+    // Cihazdan veri geldiğinde son görülme zamanını günceller
     public void UpdatePulse() => _lastSeen = DateTime.UtcNow;
 
-    // Cihazın son 30 saniye de çevrimiçi olup olmadığını kontrol etmek için kullanılan yöntem
-    public bool IsOnline() => (DateTime.UtcNow - _lastSeen) < _timeout;
+    // Son 30 saniye içinde veri geldiyse cihaz çevrimiçidir
+    public bool IsOnline() => _lastSeen.HasValue && (DateTime.UtcNow - _lastSeen.Value) < _timeout;
 
-    // Cihazdan alınan en son verinin zamanını almak için kullanılan yöntem(Son görüldü)
-    public DateTime GetLastSeen() => _lastSeen;
+    // Son görülme zamanını ISO formatında veya null döner
+    public DateTime? GetLastSeen() => _lastSeen;
 }

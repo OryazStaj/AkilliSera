@@ -1,8 +1,15 @@
 # Frontend .gitignore Kuralları
 # Yüzlerce megabaytlık Node paketlerinin repoya girmesi engellendi:
 node_modules/
-dist/
 .env
+
+# ASP.NET Core / Razor build outputs and caches
+bin/
+obj/
+.vs/
+TestResults/
+*.nupkg
+*.snupkg
 
 # Derleme çıktıları, framework önbellekleri ve günlükler
 build/
@@ -27,3 +34,10 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Zorunlu frontend vendor dosyalari (yanlislikla ignore edilmesin)
+!wwwroot/dist/
+!wwwroot/dist/css/
+!wwwroot/dist/js/
+!wwwroot/dist/css/adminlte.css
+!wwwroot/dist/js/adminlte.js

@@ -7,36 +7,43 @@ namespace AkilliSera_API.Services
     public class DataBaseService
     {
         private readonly AkilliSeraDbContext _context;
-        public DataBaseService(AkilliSeraDbContext context)
+        private readonly ILogger<DataBaseService> _logger; // Loglama için
+        public DataBaseService(AkilliSeraDbContext context, ILogger<DataBaseService> logger)
         {
             _context = context;
+            _logger = logger;
         }
-        public void Verikaydet(SensorLoglari yeniVeri)
+        public bool Verikaydet(SensorLoglari yeniVeri)
         {
             try
             {
                 _context.SensorLoglaris.Add(yeniVeri);
                 _context.SaveChanges();
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Sensör verisi kaydedilirken hata oluştu: " + ex.Message);
+                _logger.LogError(ex, "Sensör verisi kaydedilirken hata oluştu.");
+                return false; // BadRequest dönecek
             }
         }
         public List<SensorLoglari> SensorGecmisi()
         {
-            return _context.SensorLoglaris.ToList();
+            // Listeleme işlemlerinde en yeni kayıtlar önce dönecek şekilde sıralama 
+            return _context.SensorLoglaris.OrderByDescending(s => s.KayitZamani).ToList();
         }
-        public void IlaclamaEkle(IlaclamaTakip yeniIlaclama)
+        public bool IlaclamaEkle(IlaclamaTakip yeniIlaclama)
         {
             try
             {
                 _context.IlaclamaTakips.Add(yeniIlaclama);
                 _context.SaveChanges();
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("İlaçlama kaydı eklenirken hata oluştu: " + ex.Message);
+                _logger.LogError(ex, "İlaçlama kaydı eklenirken hata oluştu.");
+                return false;
             }
         }
         public List<IlaclamaTakip> IlaclamaGecmisi()
@@ -73,7 +80,7 @@ namespace AkilliSera_API.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Kayıt sırasında hata oluştu: " + ex.Message);
+                _logger.LogError(ex, "Kayıt sırasında hata oluştu.");
                 return false;
             }
         }
@@ -91,7 +98,7 @@ namespace AkilliSera_API.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Giriş yapılırken hata oluştu: " + ex.Message);
+                _logger.LogError(ex, "Giriş yapılırken hata oluştu.");
                 return null;
             }
         }

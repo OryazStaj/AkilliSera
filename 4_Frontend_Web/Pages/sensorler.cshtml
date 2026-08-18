@@ -1,4 +1,4 @@
-﻿@page
+@page
 
 @{
     ViewData["Title"] = "Sensörler";
@@ -311,62 +311,44 @@
             durumId,
             deger,
             birim,
-            sensorAdi
+            sensorAdi,
+            isLive = false
         ) {
 
-            const kart =
-                document.getElementById(kartId);
+            const kart = document.getElementById(kartId);
+            const degerAlani = document.getElementById(degerId);
+            const durum = document.getElementById(durumId);
 
-            const degerAlani =
-                document.getElementById(degerId);
+            if (deger !== null && deger !== undefined) {
+                degerAlani.innerText = Number(deger).toFixed(1) + " " + birim;
 
-            const durumAlani =
-                document.getElementById(durumId);
-
-
-            if (
-                deger !== null &&
-                deger !== undefined
-            ) {
-
-                degerAlani.innerText =
-                    Number(deger).toFixed(1) +
-                    " " +
-                    birim;
-
-                durumAlani.innerText =
-                    "Çalışıyor";
-
-                kart.className =
-                    "small-box text-bg-success";
-
-            }
-            else {
-
-                degerAlani.innerText =
-                    "--";
-
-                durumAlani.innerText =
-                    "Veri Alınamıyor";
-
-                kart.className =
-                    "small-box text-bg-danger";
-
-                arizaEkle(
-                    "⚠️ " +
-                    sensorAdi +
-                    " sensöründen veri alınamıyor."
-                );
+                if (isLive) {
+                    durum.innerText = "Canlı Veri";
+                    durum.className = "badge bg-light text-dark";
+                    kart.className = "small-box text-bg-success";
+                } else {
+                    durum.innerText = "Kayıtlı Veri (Offline)";
+                    durum.className = "badge bg-light text-dark";
+                    kart.className = "small-box text-bg-secondary";
+                }
+            } else {
+                degerAlani.innerText = "--";
+                durum.innerText = "Veri Yok";
+                durum.className = "badge bg-light text-dark";
+                kart.className = "small-box text-bg-secondary";
             }
         }
 
+        // =====================================================
+        // TÜM SENSÖR KARTLARINI GÜNCELLE
+        // =====================================================
 
         function sensorleriGuncelle(
             sicaklik,
             ortamNem,
-            toprakNem
+            toprakNem,
+            isLive = false
         ) {
-
             arizaTemizle();
 
             sensorKartiGuncelle(
@@ -375,7 +357,8 @@
                 "sicaklikDurumu",
                 sicaklik,
                 "°C",
-                "Sıcaklık"
+                "Sıcaklık",
+                isLive
             );
 
             sensorKartiGuncelle(
@@ -384,7 +367,8 @@
                 "ortamNemDurumu",
                 ortamNem,
                 "%",
-                "Ortam nem"
+                "Ortam nem",
+                isLive
             );
 
             sensorKartiGuncelle(
@@ -393,68 +377,9 @@
                 "toprakNemDurumu",
                 toprakNem,
                 "%",
-                "Toprak nem"
+                "Toprak nem",
+                isLive
             );
-        }
-
-
-        function cihazKartiGuncelle(
-            kartId,
-            durumId,
-            bilgiId,
-            cihazDurumu
-        ) {
-
-            const kart =
-                document.getElementById(kartId);
-
-            const durum =
-                document.getElementById(durumId);
-
-            const bilgi =
-                document.getElementById(bilgiId);
-
-
-            if (
-                cihazDurumu === undefined ||
-                cihazDurumu === null
-            ) {
-
-                durum.innerText =
-                    "--";
-
-                bilgi.innerText =
-                    "Durum verisi bekleniyor";
-
-                kart.className =
-                    "small-box text-bg-secondary";
-
-                return;
-            }
-
-
-            if (cihazDurumu === true) {
-
-                durum.innerText =
-                    "Çalışıyor";
-
-                bilgi.innerText =
-                    "Aktif";
-
-                kart.className =
-                    "small-box text-bg-success";
-            }
-            else {
-
-                durum.innerText =
-                    "Kapalı";
-
-                bilgi.innerText =
-                    "Pasif";
-
-                kart.className =
-                    "small-box text-bg-secondary";
-            }
         }
 
 
@@ -485,7 +410,6 @@
                 isitici
             );
         }
-
 
         async function sensorVerileriniGetir() {
 
@@ -659,7 +583,8 @@
                 sensorleriGuncelle(
                     veri.temperature,
                     veri.humidity,
-                    veri.soilMoisture
+                    veri.soilMoisture,
+                    true
                 );
 
 
@@ -690,26 +615,13 @@
 
 
         async function signalRBaslat() {
-
             try {
-
                 await seraConnection.start();
 
-                console.log(
-                    "SignalR bağlantısı kuruldu."
-                );
+                console.log("SignalR bağlantısı kuruldu.");
             }
             catch (error) {
-
-                console.error(
-                    "SignalR bağlantı hatası:",
-                    error
-                );
-
-                setTimeout(
-                    signalRBaslat,
-                    5000
-                );
+                console.warn("Canlı SignalR akışı beklemede (cihaz bağlı değilken normaldir).", error);
             }
         }
 
