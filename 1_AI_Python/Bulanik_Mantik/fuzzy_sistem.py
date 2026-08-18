@@ -2,37 +2,7 @@ import numpy as np #sayısal işlem ve dizilerde çalışmak için kullanılır.
 import skfuzzy as fuzz # bu fuzzy kütüphanesini içeri aktarır fuzz yine kısaltma takma addır. bununla üyelik fonksiyonlarını oluşturabiliriz.
 from skfuzzy import control as ctrl #control bulanık mantık sistemi kurmaya yarar.girdi-çıktılar , kurallar ve en sonunda bütün kuralları birleştirir.
 import json
-#eğer backend evreyi seçip o değerleri bana vermezse :
-#evre = test_json["evreAdi"]
-#optimal = test_json["optimalDegerler"][evre] kullanıp test jsonda tüm evre ve min maxları gelicek.
-test_json = {
-    "bitki": {
-        "bitkiAdi": "Domates",
-        "evreAdi": "Vejetatif",
 
-        "minToprakNemi": 45,
-        "maxToprakNemi": 70,
-
-        "minOrtamNemi": 60,
-        "maxOrtamNemi": 80,
-
-        "gunduzMinSicaklik": 20,
-        "gunduzMaxSicaklik": 28,
-
-        "geceMinSicaklik": 16,
-        "geceMaxSicaklik": 20
-    },
-
-    "anlikVeriler": {
-        "toprakNemi": 38,
-        "ortamNemi": 45,
-        "sicaklik": 31
-    },
-
-    "zaman": {
-        "saat": 14
-    }
-}
 
 def hesapla(json_veri):
     #aşağıda jsondaki verileri allıyoruz.
@@ -795,15 +765,5 @@ def calculate():
 
 
 if __name__ == "__main__":
-    # test etmek için ekrana yazdır
-    sonuc = hesapla(test_json)
-    json_cikti = json.dumps(
-        sonuc,
-        ensure_ascii=False,
-        indent=4
-    )
-    # test etmek için ekrana yazdır
-    print(json_cikti)
-
     # Flask sunucusunu baslat
     app.run(host="0.0.0.0", port=5000)
