@@ -217,19 +217,18 @@ Invoke-RestMethod -Uri "https://localhost:7266/api/telemetry" `
 
 ---
 
-## 👥 Geliştirici Ekibi & Katkıda Bulunanlar
+## 👥 Geliştirici Ekibi
 
-Bu proje, staj sürecinde ortak havuzda takım çalışması prensibiyle geliştirilmiştir:
+Bu proje, staj kapsamında çok disiplinli bir mühendislik çalışması olarak aşağıdaki ekip tarafından geliştirilmiştir:
 
-| Katkıda Bulunan | Çalışma Alanı | Profil Bağlantısı |
-| :--- | :--- | :--- |
-| **Geliştirici Adı** | Yapay Zeka & Görüntü İşleme (Python, YOLOv8, Fuzzy Logic) | [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?logo=github)](https://github.com/) |
-| **Geliştirici Adı** | Backend Mimarisi & SignalR Entegrasyonu (.NET 8, C#, MSSQL) | [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?logo=github)](https://github.com/) |
-| **Geliştirici Adı** | Web Arayüzü & Kullanıcı Deneyimi (.NET 9 Razor, AdminLTE) | [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?logo=github)](https://github.com/) |
-| **Geliştirici Adı** | Gömülü Sistemler & Donanım (ESP32, C++, IoT Sensörler) | [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?logo=github)](https://github.com/) |
-| **Geliştirici Adı** | Veritabanı Tasarımı & SQL Mimarisi (MS SQL Server, T-SQL) | [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?logo=github)](https://github.com/) |
-
-*(Ekip üyeleri kendi isimlerini ve GitHub/LinkedIn profil bağlantılarını yukarıdaki tabloya ekleyebilir.)*
+| Geliştirici | Çalışma Alanı ve Modül |
+| :--- | :--- |
+| **Furkan & Hülya** | Yapay Zeka & Görüntü İşleme (YOLOv8, ONNX, Bulanık Mantık Karar Motoru) |
+| **Umut, Sudenaz & Yusuf** | Backend REST API Mimarisi, Servisler ve SignalR Hub (.NET 8, C#) |
+| **Burak & Yusuf** | Gömülü Sistemler, IoT Sensörler ve Donanım Entegrasyonu (ESP32, C++) |
+| **Umut & Zülal** | Canlı Gösterge Paneli ve Web Kullanıcı Arayüzü (.NET 9 Razor Pages, AdminLTE) |
+| **Hasan & Kaan** | İlişkisel Veritabanı Mimarisi, Şemalar ve Tablo Tasarımı (MS SQL Server) |
+| **Kaan & Burak** | Donanım Tasarımı, Pin Haritaları ve Devre Çizimleri |
 
 ---
 
