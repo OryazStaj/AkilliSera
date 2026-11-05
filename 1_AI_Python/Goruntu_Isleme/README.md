@@ -42,12 +42,12 @@ Spesifik bir görüntüyü analiz etmek veya çıktısını JSON dosyasına kayd
 
 * **Ekrana JSON Basma:**
   ```powershell
-  python analiz.py "test_yapragi.jpg"
+  python analiz.py "test_yaprak_01.jpg"
   ```
 
 * **Analiz Edip Doğrudan Backend'e Gönderme:**
   ```powershell
-  python analiz.py "test_yapragi.jpg" --gonder
+  python analiz.py "test_yaprak_01.jpg" --gonder
   ```
 
 ---
